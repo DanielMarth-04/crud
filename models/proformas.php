@@ -58,6 +58,16 @@ class proformas
             return [];
         }
     }
+    public function obtenerTotalProforma($idProforma)
+    {
+        $sql = "SELECT SUM(valor) AS total 
+            FROM detalleproforma 
+            WHERE idproforma = :idProforma";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':idProforma', $idProforma, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
 
     public function guardar($idcliente, $idarea, $codigo, $precio, $estado)
@@ -144,7 +154,7 @@ class proformas
         $stmt = $this->conn->prepare($sqlCabecera);
         $stmt->execute([$id]);
         $cabecera = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
         // ✅ Detalle separado
         $sqlDetalle = "SELECT 
                             s.servicio AS descripcion,
@@ -158,11 +168,10 @@ class proformas
         $stmt2 = $this->conn->prepare($sqlDetalle);
         $stmt2->execute([$id]);
         $detalle = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-    
+
         return [
             'cabecera' => $cabecera,
             'detalle' => $detalle
         ];
     }
-    
 }

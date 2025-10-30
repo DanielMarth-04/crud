@@ -47,6 +47,17 @@ $(document).ready(function () {
       }
     }
   });
+  $('#cliente').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Seleccione el cliente...',
+    allowClear: true,
+    width: '100%',
+    language: {
+      noResults: function() {
+        return "No se encontró proforma";
+      }
+    }
+  });
 
   // Animación visual al abrir/cerrar el select
   $('#idpersonal').on('select2:open', function() {

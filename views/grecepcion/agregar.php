@@ -2,13 +2,16 @@
 require_once __DIR__ . "/../../controllers/proformasController.php";
 require_once __DIR__ . "/../../controllers/personalController.php";
 require_once __DIR__ . "/../../controllers/clienteController.php";
+require_once __DIR__ . '/../../controllers/tipoController.php';
 $controller = new proformasController();
 $trabajadores = new personalController();
 $clienteController = new clienteController();
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $proformas = $controller->obtenerproformasPorId($id);
 $personal = $trabajadores->obtenerPersonalId($id);
-$clientes = $clienteController->listarClienteprof($id); // array de clientes
+$clientes = $clienteController->listarClienteprof($id);
+$controller = new tipoController();
+$tipos = $controller->listar(); // array de clientes
 ?>
 <div class="content-wrapper">
 
@@ -34,7 +37,7 @@ $clientes = $clienteController->listarClienteprof($id); // array de clientes
                         <h3 class="card-title mb-0 fs-5">Datos Generales</h3>
                     </div>
 
-                    <form method="POST" action="<?php echo APP_URL; ?>controllers/proformasController.php?action=guardar">
+                    <form method="POST" action="<?php echo APP_URL; ?>controllers/guiasRecepcionController.php?action=guardar">
                         <div class="card-body bg-light rounded-bottom-4">
                             <div class="row g-4">
 
@@ -66,10 +69,10 @@ $clientes = $clienteController->listarClienteprof($id); // array de clientes
                                     <select name="cliente" id="cliente" class="form-control select2" required>
                                         <option value="">Seleccione un cliente</option>
                                         <?php foreach ($clientes as $c): ?>
-                                                <option value="<?php echo htmlspecialchars($c['id']); ?>">
+                                            <option value="<?php echo htmlspecialchars($c['id']); ?>">
                                                 <?php echo htmlspecialchars($c['nombres']); ?>
-                                                </option>
-                                            <?php endforeach; ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
 
@@ -108,40 +111,67 @@ $clientes = $clienteController->listarClienteprof($id); // array de clientes
                                             placeholder="0.00" readonly>
                                     </div>
                                 </div>
-
                                 <!-- SERVICIOS -->
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">
                                         Servicios <span class="text-danger">*</span>
                                     </label>
+
                                     <div id="servicios-container" class="border rounded-3 p-3 bg-white shadow-sm">
+
+                                        <!-- Encabezado -->
+                                        <div class="row fw-semibold text-secondary mb-2 text-center d-none d-md-flex">
+                                            <div class="col-3">Descripción</div>
+                                            <div class="col-2">Cod. Ingreso</div>
+                                            <div class="col-2">Estado</div>
+                                            <div class="col-2">Fecha Ingreso</div>
+                                            <div class="col-2">Tipo</div>
+                                            <div class="col-1"></div>
+                                        </div>
+
+                                        <!-- Contenedor dinámico -->
                                         <div id="servicios-rows">
-                                            <div class="row g-2 mb-2 servicio-row">
-                                                <div class="col">
-                                                    <input type="text" name="servicio[]" class="form-control" placeholder="Descripcion" required>
+                                            <div class="row g-2 mb-2 servicio-row align-items-center">
+                                                <div class="col-3">
+                                                    <input type="text" name="servicio[]" class="form-control form-control-sm" placeholder="Descripción del servicio" required>
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="detalle1[]" class="form-control" placeholder="cod. de ingreso">
+                                                <div class="col-2">
+                                                    <input type="text" name="detalle1[]" class="form-control form-control-sm" placeholder="Cod. ingreso">
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="detalle2[]" class="form-control" placeholder="estado">
+                                                <div class="col-2">
+                                                    <input type="text" name="detalle2[]" class="form-control form-control-sm" placeholder="Estado">
                                                 </div>
-                                                <div class="col">
-                                                    <input type="date" name="detalle3[]" class="form-control" placeholder="fech.ingreso">
+                                                <div class="col-2">
+                                                    <input type="date" name="detalle3[]" class="form-control form-control-sm">
                                                 </div>
-                                                <div class="col">
-                                                    <input type="date" name="detalle4[]" class="form-control" placeholder="tipo">
+                                                <div class="col-2">
+                                                    <select name="detalle4[]" class="form-select form-select-sm">
+                                                        <?php foreach ($tipos as $tipo): ?>
+                                                            <option value="<?php echo htmlspecialchars($tipo['id']); ?>">
+                                                                <?php echo htmlspecialchars($tipo['tipos']); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-1 text-center">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-servicio p-0 d-flex align-items-center justify-content-center" style="height:31px; width:31px;" title="Eliminar fila">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <button type="button" id="add-servicio" class="btn btn-primary btn-sm mt-2">
-                                            <i class="fas fa-plus"></i> Agregar fila
-                                        </button>
-                                        <small class="text-muted d-block mt-2">
-                                            Ejemplo: Calibración de multímetro, mantenimiento de pinza, etc.
-                                        </small>
+
+                                        <!-- Botón agregar -->
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <button type="button" id="add-servicio" class="btn btn-outline-primary btn-sm px-3 shadow-sm">
+                                                <i class="fas fa-plus me-1"></i> Agregar servicio
+                                            </button>
+                                            <small class="text-muted">Ejemplo: Calibración, mantenimiento, inspección, etc.</small>
+                                        </div>
                                     </div>
                                 </div>
+
+
                             </div>
                         </div>
 
@@ -231,61 +261,79 @@ $clientes = $clienteController->listarClienteprof($id); // array de clientes
     .card:hover {
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .1);
     }
+
+    .servicio-row input,
+    .servicio-row select {
+        min-height: 31px;
+    }
+
+    .servicio-row .btn {
+        border-radius: 6px;
+        transition: 0.2s ease-in-out;
+    }
+
+    .servicio-row .btn:hover {
+        transform: scale(1.1);
+    }
+
+    /* Corrección de layout para el select de Tipo y el botón eliminar */
+    .servicio-row select.form-select {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .servicio-row .col-1 {
+        flex: 0 0 48px;
+        /* ancho fijo para el botón */
+        max-width: 48px;
+    }
+
+    .servicio-row .col-1 .btn {
+        width: 100%;
+        height: 31px;
+    }
 </style>
 <script>
     document.getElementById('add-servicio').addEventListener('click', function() {
         const container = document.getElementById('servicios-rows');
 
-        // Crear nueva fila
         const newRow = document.createElement('div');
-        newRow.classList.add('row', 'g-2', 'mb-2', 'servicio-row');
+        newRow.classList.add('row', 'g-2', 'mb-2', 'servicio-row', 'align-items-center');
+        newRow.innerHTML = `
+        <div class="col-3">
+            <input type="text" name="servicio[]" class="form-control form-control-sm" placeholder="Descripción del servicio" required>
+        </div>
+        <div class="col-2">
+            <input type="text" name="detalle1[]" class="form-control form-control-sm" placeholder="Cod. ingreso">
+        </div>
+        <div class="col-2">
+            <input type="text" name="detalle2[]" class="form-control form-control-sm" placeholder="Estado">
+        </div>
+        <div class="col-2">
+            <input type="date" name="detalle3[]" class="form-control form-control-sm">
+        </div>
+<div class="col-2">
+    <select name="detalle4[]" class="form-select form-select-sm rounded-3 shadow-sm border-secondary-subtle">
+        <?php foreach ($tipos as $tipo): ?>
+            <option value="<?php echo htmlspecialchars($tipo['id']); ?>">
+                <?php echo htmlspecialchars($tipo['tipos']); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+        <div class="col-1 text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm remove-servicio p-0 d-flex align-items-center justify-content-center" style="height:31px; width:31px;" title="Eliminar fila">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    `;
 
-        // Columna 1: Descripción (required)
-        const col1 = document.createElement('div');
-        col1.classList.add('col');
-        const input1 = document.createElement('input');
-        input1.type = 'text';
-        input1.name = 'servicio[]';
-        input1.classList.add('form-control');
-        input1.placeholder = 'Descripcion';
-        input1.required = true;
-        col1.appendChild(input1);
-        newRow.appendChild(col1);
-
-        // Columna 2: Código de ingreso
-        const col2 = document.createElement('div');
-        col2.classList.add('col');
-        const input2 = document.createElement('input');
-        input2.type = 'text';
-        input2.name = 'detalle1[]';
-        input2.classList.add('form-control');
-        input2.placeholder = 'cod. de ingreso';
-        col2.appendChild(input2);
-        newRow.appendChild(col2);
-
-        // Columna 3: Estado
-        const col3 = document.createElement('div');
-        col3.classList.add('col');
-        const input3 = document.createElement('input');
-        input3.type = 'text';
-        input3.name = 'detalle2[]';
-        input3.classList.add('form-control');
-        input3.placeholder = 'estado';
-        col3.appendChild(input3);
-        newRow.appendChild(col3);
-
-        // Columna 4: Fecha de ingreso
-        const col4 = document.createElement('div');
-        col4.classList.add('col');
-        const input4 = document.createElement('input');
-        input4.type = 'date';
-        input4.name = 'detalle3[]';
-        input4.classList.add('form-control');
-        input4.placeholder = 'fech.ingreso';
-        col4.appendChild(input4);
-        newRow.appendChild(col4);
-
-        // Agregar la fila al contenedor
         container.appendChild(newRow);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-servicio')) {
+            e.target.closest('.servicio-row').remove();
+        }
     });
 </script>

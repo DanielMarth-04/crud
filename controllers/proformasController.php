@@ -487,4 +487,11 @@ if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? '')) {
         echo 'Método no permitido. Use POST para guardar.';
         exit;
     }
+    if ($_POST['action'] == 'obtenerTotal') {
+        require_once __DIR__ . '/../models/proformas.php';
+        $model = new proformas();
+        $total = $model->obtenerTotalProforma($_POST['id']);
+        echo json_encode($total);
+        exit;
+    }
 }

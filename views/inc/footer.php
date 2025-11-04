@@ -47,17 +47,6 @@ $(document).ready(function () {
       }
     }
   });
-  $('#cliente').select2({
-    theme: 'bootstrap-5',
-    placeholder: 'Seleccione el cliente...',
-    allowClear: true,
-    width: '100%',
-    language: {
-      noResults: function() {
-        return "No se encontró proforma";
-      }
-    }
-  });
 
   // Animación visual al abrir/cerrar el select
   $('#idpersonal').on('select2:open', function() {
@@ -68,19 +57,22 @@ $(document).ready(function () {
 
   /* ==========================
      🔹 LÓGICA DE SERVICIOS
+     NOTA: Este listener se deshabilitó porque hay otro más completo
+     en views/proformas/agregar.php que maneja mejor Select2 y el diseño
   ========================== */
-  $('#btnAddServicio').on('click', function() {
-    let first = document.querySelector('.servicio-item');
-    if (!first) {
-      console.error('No existe .servicio-item');
-      return;
-    }
-    let clone = first.cloneNode(true);
-    clone.querySelectorAll('select').forEach(s => s.value = '');
-    clone.querySelectorAll('input').forEach(i => i.value = '');
-    document.getElementById('servicios-container').appendChild(clone);
-    console.log('✅ Clon agregado correctamente');
-  });
+  // Comentado para evitar duplicados - manejado en agregar.php
+  // $('#btnAddServicio').on('click', function() {
+  //   let first = document.querySelector('.servicio-item');
+  //   if (!first) {
+  //     console.error('No existe .servicio-item');
+  //     return;
+  //   }
+  //   let clone = first.cloneNode(true);
+  //   clone.querySelectorAll('select').forEach(s => s.value = '');
+  //   clone.querySelectorAll('input').forEach(i => i.value = '');
+  //   document.getElementById('servicios-container').appendChild(clone);
+  //   console.log('✅ Clon agregado correctamente');
+  // });
 
   // Eliminar servicio
   $(document).on('click', '.btn-remove-servicio', function() {

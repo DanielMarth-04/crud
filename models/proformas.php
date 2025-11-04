@@ -23,11 +23,9 @@ class proformas
         c.DniRuc AS dni_ruc,
         c.nombres AS cliente,
         c.contacto,
-        a.area,
         GROUP_CONCAT(s.servicio SEPARATOR ', ') AS servicios
     FROM proforma p
     INNER JOIN clientes c ON p.idcliente = c.id
-    INNER JOIN area a ON p.idarea = a.id
     INNER JOIN detalleproforma d ON p.id = d.idproforma
     INNER JOIN servicios s ON d.idservicio = s.id
     GROUP BY p.id
@@ -68,9 +66,16 @@ class proformas
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function obtenerProformasPorId($id = null)
+    {
+        $sql = "SELECT id, codigo FROM proforma ORDER BY codigo ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 
-    public function guardar($idcliente, $idarea, $codigo, $precio, $estado)
+    public function guardar($idcliente, $codigo, $precio, $estado)
     {
         try {
             // Generar código
@@ -83,16 +88,14 @@ class proformas
             } else {
                 $nuevoNumero = "00001";
             }
-
             $codigo = "PF-2025-" . $nuevoNumero;
             date_default_timezone_set('America/Lima');
             $fecha = date('Y-m-d H:i:s');
 
-            $sql = "INSERT INTO proforma (idcliente, idarea, codigo, precio, fecha, estado)
-                    VALUES (:idcliente, :idarea, :codigo, :precio, :fecha, :estado)";
+            $sql = "INSERT INTO proforma (idcliente, codigo, precio, fecha, estado)
+                    VALUES (:idcliente, :codigo, :precio, :fecha, :estado)";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':idcliente', $idcliente);
-            $stmt->bindParam(':idarea', $idarea);
             $stmt->bindParam(':codigo', $codigo);
             $stmt->bindParam(':precio', $precio);
             $stmt->bindParam(':fecha', $fecha);
@@ -106,34 +109,29 @@ class proformas
             return false;
         }
     }
-    public function obtenerProformasPorId($id = null)
-    {
-        $sql = "SELECT id, codigo FROM proforma ORDER BY codigo ASC";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
 
-    public function guardarDetalleProforma($idproforma, $idservicio, $valor)
+    public function guardarDetalleProforma($idproforma, $idservicio, $idtipo, $idarea, $valor)
     {
         try {
-            $sql = "INSERT INTO detalleproforma (idproforma, idservicio, valor)
-                    VALUES (:idproforma, :idservicio, :valor)";
+            $sql = "INSERT INTO detalleproforma (idproforma, idservicio, idtipo, idarea, valor)
+                    VALUES (:idproforma, :idservicio, :idtipo, :idarea, :valor)";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':idproforma', $idproforma);
             $stmt->bindParam(':idservicio', $idservicio);
+            $stmt->bindParam(':idtipo', $idtipo);
+            $stmt->bindParam(':idarea', $idarea);
             $stmt->bindParam(':valor', $valor);
             $stmt->execute();
             return true;
         } catch (PDOException $e) {
-            echo "Error al guardar detalle: " . $e->getMessage();
-            return false;
+            die("Error al guardar detalle: " . $e->getMessage());
         }
     }
 
     public function obtenerPorId($id)
     {
+        // ✅ Cabecera: ya no unimos con area, solo cliente
         $sqlCabecera = "SELECT 
                             p.id,
                             p.codigo,
@@ -145,33 +143,30 @@ class proformas
                             c.contacto,
                             c.direccion,
                             c.telefono,
-                            c.correo,
-                            a.area
+                            c.correo
                         FROM proforma p
                         INNER JOIN clientes c ON p.idcliente = c.id
-                        INNER JOIN area a ON p.idarea = a.id
                         WHERE p.id = ?";
         $stmt = $this->conn->prepare($sqlCabecera);
         $stmt->execute([$id]);
         $cabecera = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // ✅ Detalle separado
+    
+        // ✅ Detalle: el área se obtiene desde detalleproforma
         $sqlDetalle = "SELECT 
                             s.servicio AS descripcion,
                             a.area,
                             d.valor
                         FROM detalleproforma d
                         INNER JOIN servicios s ON d.idservicio = s.id
-                        INNER JOIN proforma p ON d.idproforma = p.id
-                        INNER JOIN area a ON p.idarea = a.id
+                        INNER JOIN area a ON d.idarea = a.id
                         WHERE d.idproforma = ?";
         $stmt2 = $this->conn->prepare($sqlDetalle);
         $stmt2->execute([$id]);
         $detalle = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-
+    
         return [
             'cabecera' => $cabecera,
             'detalle' => $detalle
         ];
     }
-}
+}   

@@ -57,22 +57,43 @@ class proformasController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $idcliente = $_POST['idcliente'] ?? '';
-            $idarea = $_POST['idarea'] ?? '';
+            $idcliente   = $_POST['idcliente'] ?? '';
+            $idareas     = $_POST['idarea'] ?? [];
             $idservicios = $_POST['idservicio'] ?? [];
-            $precios = $_POST['precio'] ?? [];
-            $estado = 1;
+            $idtipos     = $_POST['idtipo'] ?? [];
+            $precios     = $_POST['precio'] ?? [];
+            $estado      = 1;
 
-            // Calcular total
-            $total = is_array($precios) ? array_sum($precios) : floatval($precios);
+            // 🔹 Asegurar que todos sean arrays
+            $idareas     = (array)$idareas;
+            $idservicios = (array)$idservicios;
+            $idtipos     = (array)$idtipos;
+            $precios     = (array)$precios;
+
+            // 🔹 Calcular total general
+            $total = array_sum(array_map('floatval', $precios));
 
             $model = new proformas();
-            $idProforma = $model->guardar($idcliente, $idarea, '', $total, $estado);
+            $idProforma = $model->guardar($idcliente, '', $total, $estado);
 
             if ($idProforma) {
+
                 foreach ($idservicios as $i => $servicioId) {
-                    $valor = $precios[$i] ?? 0;
-                    $model->guardarDetalleProforma($idProforma, $servicioId, $valor);
+                    if (empty($servicioId)) continue;
+
+                    $idtipo  = isset($idtipos[$i]) ? intval($idtipos[$i]) : null;
+                    $idarea  = isset($idareas[$i]) ? intval($idareas[$i]) : null;
+                    $valor   = isset($precios[$i]) ? floatval($precios[$i]) : 0;
+
+                    // 🔹 Validar campos requeridos antes de guardar
+                    if ($idtipo && $idarea && $servicioId) {
+                        $ok = $model->guardarDetalleProforma($idProforma, $servicioId, $idtipo, $idarea, $valor);
+                        if (!$ok) {
+                            error_log("Error al guardar detalle: Servicio=$servicioId, Tipo=$idtipo, Área=$idarea, Valor=$valor");
+                        }
+                    } else {
+                        error_log("⚠️ Detalle omitido por datos incompletos: index $i");
+                    }
                 }
 
                 header("Location: ../index.php?views=proformas/index&msg=ok");
@@ -256,7 +277,7 @@ class proformasController
         $y_actual = $pdf->GetY();
 
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->SetXY(15, $y_actual-15);
+        $pdf->SetXY(15, $y_actual - 15);
         $pdf->cell(85, 5, 'Costo en soles', 1, 1, 'C');
         $pdf->SetFont('Arial', '', 8);
         $pdf->SetXY(15, $pdf->GetY());

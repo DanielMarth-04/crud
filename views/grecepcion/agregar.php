@@ -25,6 +25,18 @@ $tipos = $controller->listar(); // array de clientes
         <hr class="mt-3 mb-4">
     </section>
 
+    <!-- MENSAJES DE ERROR -->
+    <?php if (isset($_GET['msg']) && $_GET['msg'] == 'error' && isset($_GET['error'])): ?>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong><i class="fas fa-exclamation-triangle me-2"></i>Error:</strong> <?php echo htmlspecialchars(urldecode($_GET['error'])); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <!-- FORMULARIO -->
     <section class="content">
         <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -39,7 +51,7 @@ $tipos = $controller->listar(); // array de clientes
                         </tr>
                         <tr>
                             <td style="padding: 20px;">
-                                <form id="form-guia-recepcion" method="POST" action="<?php echo APP_URL; ?>controllers/guiasRecepcionController.php?action=guardar">
+                                <form id="form-guia-recepcion" method="POST" action="<?php echo APP_URL; ?>controllers/grecepcionController.php?action=guardar">
                                     <table width="100%" cellpadding="10" cellspacing="0" border="0">
                                         <!-- Nº PROFORMA -->
                                         <tr>
@@ -58,10 +70,10 @@ $tipos = $controller->listar(); // array de clientes
                                             </td>
                                             <!-- CLIENTE -->
                                             <td width="20%" align="right" valign="top" style="padding-right: 15px;">
-                                                <label for="cliente"><strong>Cliente <span style="color: red;">*</span></strong></label>
+                                                <label for="idcliente"><strong>Cliente <span style="color: red;">*</span></strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <select name="cliente" id="cliente" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
+                                                <select name="idcliente" id="idcliente" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
                                                     <option value="">Seleccione un cliente</option>
                                                     <?php foreach ($clientes as $c): ?>
                                                         <option value="<?php echo htmlspecialchars($c['id']); ?>">
@@ -78,7 +90,7 @@ $tipos = $controller->listar(); // array de clientes
                                                 <label for="idpersonal"><strong>Personal responsable <span style="color: red;">*</span></strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <select name="idpersonal" id="idpersonal" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
+                                                <select name="idtrabajador" id="idtrabajador" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
                                                     <option value="" selected disabled>Seleccione al personal</option>
                                                     <?php foreach ($personal as $ps): ?>
                                                         <option value="<?php echo htmlspecialchars($ps['id']); ?>">
@@ -124,13 +136,13 @@ $tipos = $controller->listar(); // array de clientes
                                                                         <input type="text" name="servicio[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Descripción del servicio" required>
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                                                                        <input type="text" name="detalle1[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
+                                                                        <input type="text" name="codigo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                                                                        <input type="text" name="detalle2[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
+                                                                        <input type="text" name="estado[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                                                                        <input type="date" name="detalle3[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
+                                                                        <input type="date" name="fecha_ingreso[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
                                                                         <select name="idtipo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
@@ -204,13 +216,13 @@ $tipos = $controller->listar(); // array de clientes
                 <input type="text" name="servicio[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Descripción del servicio" required>
             </td>
             <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="text" name="detalle1[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
+                <input type="text" name="codigo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
             </td>
             <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="text" name="detalle2[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
+                <input type="text" name="estado[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
             </td>
             <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="date" name="detalle3[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
+                <input type="date" name="fecha_ingreso[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
             </td>
             <td style="padding: 5px; border: 1px solid #dee2e6;">
                 <select name="idtipo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">

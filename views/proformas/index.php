@@ -89,6 +89,14 @@ $proformas = $controller->listar();
                             class="btn btn-sm btn-outline-danger" title="Descargar PDF" target="_blank">
                             <i class="fas fa-file-pdf"></i>
                           </a>
+                          <a href="<?php echo APP_URL . 'controllers/proformasController.php?action=generar2' ?>"
+                            class="btn btn-sm btn-outline-primary" title="Descargar PDF" target="_blank">
+                            <i class="fas fa-file-pdf"></i>
+                          </a>
+                          <a href="<?php echo APP_URL . 'controllers/proformasController.php?action=generar3' ?>"
+                            class="btn btn-sm btn-outline-warning" title="Descargar PDF" target="_blank">
+                            <i class="fas fa-file-pdf"></i>
+                          </a>
                         </div>
                       </td>
                     </tr>

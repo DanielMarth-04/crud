@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../models/proformas.php';
 require_once __DIR__ . '/../lib/fpdf/fpdf.php';
 class PDF extends FPDF
@@ -9,8 +10,47 @@ class PDF extends FPDF
         $converted = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
         return $converted === false ? $default : $converted;
     }
+    function Header()
+    {
+        // Logo con borde
+        $x = 2;
+        $y = 2;
+        $w = 35;
+        $h = 35;
+        // IMPORTANTE: En el Header, el path del logo debe ser absoluto o relativo a la ubicación del script que llama a generar2()
+        $this->Image(__DIR__ . '/../assets/img/logoCal.png', $x, $y, $w, $h);
+        $this->SetXY(52, 10);
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetTextColor(31, 53, 83); // Asegurarse de reestablecer la fuente si la usas
+        $this->MultiCell(100, 10, $this->safe_text('            LABORATORIO DE CALIBRACIÓN            SOFTWARE Y HARDWARE INGENIEROS S.R.L.'), 0, 0, 0, 'C', false);
+        $this->SetLineWidth(2);           // grosor de la línea
+        $this->SetDrawColor(31, 53, 83);     // azul
+        $this->Line(10, 39, 200, 39);     // (x1, y1, x2, y2)
+        //$this->Rect($x - 1, $y - 1, $w + 2, $h + 2);
 
-    function Footer()
+        // Cabecera del documento (usamos $this en lugar de $pdf)
+        /*$this->SetXY(36, 10);
+        $this->SetFont('Arial', 'B', 12); // Asegurarse de reestablecer la fuente si la usas
+        $this->Cell(120, 10, $this->safe_text('FR/CB-OP-004'), 1, 1, 'C');
+        $this->SetXY(36, 20);
+        $this->Cell(120, 10, $this->safe_text('REPORTE DE CAMPO DE VERIFICACIÓN'), 1, 1, 'C');
+
+        // Resto de la cabecera (Revisado, Aprobado, Versión, Fecha)
+        $this->SetFont('Arial', 'B', 7);
+        $this->SetXY(156, 10);
+        $this->Cell(20, 10, 'Revisado: CC', 1, 1, 'C');
+        $this->SetXY(156, 20);
+        $this->Cell(20, 10, 'Aprobado: GG', 1, 1, 'C');
+        $this->SetXY(176, 10);
+        $this->Cell(20, 10, 'Ver: 12', 1, 1, 'C');
+        $this->SetXY(176, 20);
+        $this->Cell(20, 10, '31-08-2023', 1, 1, 'C');*/
+
+        // Puedes dejar un espacio o línea de separación después de la cabecera
+        $this->SetY(10);
+    }
+
+    /*function Footer()
     {
         // Configuración de fuente
         $this->SetFont('Arial', 'I', 8);
@@ -43,7 +83,7 @@ class PDF extends FPDF
         // Usamos GetX para centrar el texto de la dirección
         $this->SetX((210 - $this->GetStringWidth('S&H INGENIEROS: predio los arenales sub lote B-1C, Pimentel-Lambayeque-Peru.')) / 2);
         $this->Cell(0, 5, $this->safe_text('S&H INGENIEROS: predio los arenales sub lote B-1C, Pimentel-Lambayeque-Peru.'), 0, 0, 'L');
-    }
+    }*/
 }
 class proformasController
 {
@@ -152,28 +192,7 @@ class proformasController
         $pdf->SetMargins(15, 15, 15);
         $pdf->SetAutoPageBreak(true, 15);
 
-        // Logo con borde
-        $x = 10;
-        $y = 11;
-        $w = 25;
-        $h = 18;
-        $pdf->Rect($x - 1, $y - 1, $w + 2, $h + 2);
-        $pdf->Image(__DIR__ . '/../assets/img/logo.png', $x, $y, $w, $h);
 
-        // Cabecera del documento
-        $pdf->SetXY(36, 10);
-        $pdf->Cell(120, 10, $pdf->safe_text('FR/LC-OP-002'), 1, 1, 'C');
-        $pdf->SetXY(36, 20);
-        $pdf->Cell(120, 10, $pdf->safe_text('PROFORMA DE SERVICIO DE CALIBRACION'), 1, 1, 'C');
-        $pdf->SetFont('Arial', 'B', 7);
-        $pdf->SetXY(156, 10); // Estas celdas no necesitan conversión
-        $pdf->Cell(20, 10, 'Revisado: CC', 1, 1, 'C');
-        $pdf->SetXY(156, 20);
-        $pdf->Cell(20, 10, 'Aprobado: GG', 1, 1, 'C');
-        $pdf->SetXY(176, 10);
-        $pdf->Cell(20, 10, 'Ver: 05', 1, 1, 'C');
-        $pdf->SetXY(176, 20);
-        $pdf->Cell(20, 10, '2022-10-06', 1, 1, 'C');
 
         // Fecha actual formateada
         /*$formatter = new IntlDateFormatter('es_PE', IntlDateFormatter::LONG, IntlDateFormatter::NONE, 'America/Lima', IntlDateFormatter::GREGORIAN, "d 'de' MMMM 'de' y");
@@ -442,6 +461,7 @@ La información sobre el cliente, obtenida de fuentes distintas al cliente (por 
 autorizaciones reguladoras) se trata como información que recibimos, es esencial mantener la confidencialidad de los asuntos
 de la organización.
 He leído, entiendo y cumplo el lineamiento dado sobre confidencialidad, en relación con los asuntos de la organización.'), 0, 'J');
+
         $pdf->SetFillColor(255, 255, 255);
         // Colocar contenido de forma relativa, evitando solapes
         $espacioDespues = 5;
@@ -480,6 +500,2992 @@ He leído, entiendo y cumplo el lineamiento dado sobre confidencialidad, en rela
 
         $pdf->Output('I', $nombreArchivo);
     }
+    /*public function generar2()
+    {
+        $pdf = new PDF();
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(true, 15);
+
+        // Logo con borde
+        $x = 10;
+        $y = 11;
+        $w = 25;
+        $h = 18;
+        $pdf->Rect($x - 1, $y - 1, $w + 2, $h + 2);
+        $pdf->Image(__DIR__ . '/../assets/img/logo.png', $x, $y, $w, $h);
+
+        // Cabecera del documento
+        $pdf->SetXY(36, 10);
+        $pdf->Cell(120, 10, $pdf->safe_text('FR/CB-OP-004'), 1, 1, 'C');
+        $pdf->SetXY(36, 20);
+        $pdf->Cell(120, 10, $pdf->safe_text('REPORTE DE CAMPO DE VERIFICACIÓN'), 1, 1, 'C');
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->SetXY(156, 10); // Estas celdas no necesitan conversión
+        $pdf->Cell(20, 10, 'Revisado: CC', 1, 1, 'C');
+        $pdf->SetXY(156, 20);
+        $pdf->Cell(20, 10, 'Aprobado: GG', 1, 1, 'C');
+        $pdf->SetXY(176, 10);
+        $pdf->Cell(20, 10, 'Ver: 12', 1, 1, 'C');
+        $pdf->SetXY(176, 20);
+        $pdf->Cell(20, 10, '31-08-2023', 1, 1, 'C');
+        $pdf->Ln(2);
+        $pdf->SetXY(9, 32);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('N° Reporte de Campo'), 1, 'C', false);
+        $pdf->SetXY(24, 32);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(25, 6, $pdf->safe_text('RC-00000001'), 1, 'C', false);
+        $pdf->SetXY(49, 32);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('Fecha de Inspección:'), 1, 'C', false);
+        $pdf->SetXY(64, 32);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(25, 6, $pdf->safe_text('6-11-2025'), 1, 'C', false);
+        $pdf->SetXY(89, 32);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('Proforma N°:'), 1, 'C', false);
+        $pdf->SetXY(104, 32);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(25, 6, $pdf->safe_text('PF-000001'), 1, 'C', false);
+        $pdf->SetXY(129, 32);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('Hora de Inicio'), 1, 'C', false);
+        $pdf->SetXY(139, 32);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(10, 6, $pdf->safe_text('h'), 1, 'C', false);
+        $pdf->SetXY(149, 32);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('Hora de termino'), 1, 'C', false);
+        $pdf->SetXY(159, 32);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(10, 6, $pdf->safe_text('h'), 1, 'C', false);
+        $pdf->SetXY(169, 32);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->MultiCell(10, 6, $pdf->safe_text('SEDE'), 1, 'C', false);
+        $pdf->SetXY(179, 32);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(17, 6, $pdf->safe_text('CHICLAYO'), 1, 'C', false);
+        $pdf->Ln(2);
+        $pdf->SetXY(9, 38);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(72, 4, $pdf->safe_text('1.1.	IDENTIFICACION: PLACA DEL VEHICULO TANQUE:'), 1, 1, 'L', false);
+        $pdf->SetXY(81, 38);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(25, 4, $pdf->safe_text('5950AC'), 1, 'C', false);
+        $pdf->SetXY(106, 38);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(60, 4, $pdf->safe_text('1.1.	PLACA REMOLCADOR'), 1, 1, 'L', false);
+        $pdf->SetXY(166, 38);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->MultiCell(30, 4, $pdf->safe_text('5950AC'), 1, 'C', false);
+        $pdf->SetXY(166, 38);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(9, 50);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('5'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 50);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(25, 4, $pdf->safe_text('N° Compartimientos'), 1, 1, 'C', false);
+        $pdf->SetXY(39, 50);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(45, 4, $pdf->safe_text('5'), 1, 1, 'C', false);
+        $pdf->SetXY(84, 42);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('2'), 1, 1, 'C', false);
+        $pdf->SetXY(9, 46);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('3'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 46);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(25, 4, $pdf->safe_text('N° Ejes del tanque'), 1, 1, 'C', false);
+        $pdf->SetXY(39, 46);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(45, 4, $pdf->safe_text('6'), 1, 1, 'C', false);
+        $pdf->SetXY(89, 42);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(27, 4, $pdf->safe_text('serie del tanque '), 1, 1, 'C', false);
+        $pdf->SetXY(116, 42);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(44, 4, $pdf->safe_text('TQ000001'), 1, 1, 'C', false);
+        $pdf->SetXY(160, 42);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(36, 4, $pdf->safe_text('Camion remolque'), 1, 1, 'C', false);
+
+        $pdf->SetXY(9, 42);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('1'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 42);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(25, 4, $pdf->safe_text('Marca del tanque'), 1, 1, 'C', false);
+        $pdf->SetXY(39, 42);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(45, 4, $pdf->safe_text('TOYOTA'), 1, 1, 'C', false);
+        $pdf->SetXY(84, 46);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('4'), 1, 1, 'C', false);
+        $pdf->SetXY(89, 46);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(27, 4, $pdf->safe_text('Capacidad del tanque '), 1, 1, 'C', false);
+        $pdf->SetXY(116, 46);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(44, 4, $pdf->safe_text('50 galones'), 1, 1, 'C', false);
+        $pdf->SetXY(160, 46);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(36, 4, $pdf->safe_text('Semirremolque tanque'), 1, 1, 'C', false);
+        $pdf->SetXY(84, 50);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('6'), 1, 1, 'C', false);
+        $pdf->SetXY(89, 50);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(27, 4, $pdf->safe_text('Año de fabricación'), 1, 1, 'C', false);
+        $pdf->SetXY(116, 50);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(44, 4, $pdf->safe_text('2025'), 1, 1, 'C', false);
+        $pdf->SetXY(160, 50);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(36, 4, $pdf->safe_text('Vagón tanque'), 1, 1, 'C', false);
+        $pdf->Ln(2);
+        $pdf->SetXY(8, 54);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(44, 4, $pdf->safe_text('2.	INSPECCION VISUAL:'), 0, 1, 'L', false);
+        $pdf->SetXY(9, 58);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('1'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 58);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(80, 4, $pdf->safe_text('Contómetro incorporado con acople mediante la válvula API'), 1, 1, 'C', false);
+        $pdf->SetXY(94, 58);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(9, 62);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('3'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 62);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(80, 4, $pdf->safe_text('Contómetro incorporado que inicia en el tanque'), 1, 1, 'C', false);
+        $pdf->SetXY(94, 62);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(9, 66);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('5'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 66);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(80, 4, $pdf->safe_text('Contómetro incorporado que inicia en la tubería de descarga'), 1, 1, 'C', false);
+        $pdf->SetXY(94, 66);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(9, 70);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('7'), 1, 1, 'C', false);
+        $pdf->SetXY(14, 70);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(80, 4, $pdf->safe_text('Contómetro incorporado que inicia en la tubería de descarga'), 1, 1, 'C', false);
+        $pdf->SetXY(94, 70);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        //------------------------------------------------------
+        $pdf->SetXY(99, 58);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('2'), 1, 1, 'C', false);
+        $pdf->SetXY(99, 58);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(92, 4, $pdf->safe_text('Sombrero se desplaza por la rosca'), 1, 1, 'C', false);
+        $pdf->SetXY(191, 58);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(99, 62);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('4'), 1, 1, 'C', false);
+        $pdf->SetXY(99, 62);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(92, 4, $pdf->safe_text('Contómetro incorporado que inicia en el tanque'), 1, 1, 'C', false);
+        $pdf->SetXY(191, 62);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(99, 66);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('6'), 1, 1, 'C', false);
+        $pdf->SetXY(104, 66);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(87, 4, $pdf->safe_text('Contómetro incorporado que inicia en la tubería de descarga'), 1, 1, 'C', false);
+        $pdf->SetXY(191, 66);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(99, 70);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text('8'), 1, 1, 'C', false);
+        $pdf->SetXY(104, 70);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(87, 4, $pdf->safe_text('Contómetro incorporado que inicia en la tubería de descarga'), 1, 1, 'C', false);
+        $pdf->SetXY(191, 70);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(5, 4, $pdf->safe_text(''), 1, 1, 'C', false);
+        $pdf->SetXY(9, 74);
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->MultiCell(187, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(10, 74);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->Cell(44, 4, $pdf->safe_text('Observaciones:'), 0, 1, 'L', false);
+        // ---------------------------------------------
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->SetXY(8, 78);
+        $pdf->Cell(44, 6, $pdf->safe_text('3.TIPO DE VERIFICACIÓN:'), 0, 1, 'L', false);
+        $pdf->SetXY(55, 80);
+        $pdf->MultiCell(5, 3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(60, 79);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(44, 6, $pdf->safe_text('INICIAL'), 0, 1, 'L', false);
+        $pdf->SetXY(94, 80);
+        $pdf->MultiCell(5, 3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 79);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(44, 6, $pdf->safe_text('PERIODICA'), 0, 1, 'L', false);
+        $pdf->SetXY(140, 80);
+        $pdf->MultiCell(5, 3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(145, 79);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(44, 6, $pdf->safe_text('EXTRAORDINARIA'), 0, 1, 'L', false);
+        $pdf->SetXY(10, 85);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(187, 4, $pdf->safe_text('INDICAR MOTIVO SOLO SI FUERA CUBICACION INICIAL'), 1, 1, 'C', false);
+        $pdf->SetXY(10, 89);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(15, 89);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(10, 89);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(14, 89);
+        $pdf->SetFont('Arial', '', 6.5);
+        $pdf->Cell(40, 4, $pdf->safe_text('1° verificación con la NMP 023:2021'), 1, 1, 'C', false);
+        $pdf->SetFont('Arial', '', 6.5);
+        $pdf->SetXY(14, 93);
+        $pdf->Cell(40, 4, $pdf->safe_text('Transferencia de chasis a otro.'), 1, 1, 'C', false);
+        $pdf->SetXY(10, 93);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(10, 97);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(14, 97);
+        $pdf->SetFont('Arial', '', 6.5);
+        $pdf->Cell(40, 4, $pdf->safe_text('Violación de precinto:'), 1, 1, 'C', false);
+        //-------------------segunda columna ------------------
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(54, 89);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(58, 89);
+        $pdf->SetFont('Arial', '', 6.5);
+        $pdf->Cell(71, 4, $pdf->safe_text('Modificación que altera características tec. Certificado inicial.'), 1, 1, 'L', false);
+        $pdf->SetXY(54, 93);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(58, 93);
+        $pdf->Cell(71, 4, $pdf->safe_text('Deformación del tanque debido a pruebas hidrostáticas o el uso.'), 1, 1, 'C', false);
+        $pdf->SetXY(54, 97);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetFont('Arial', '', 6.5);
+        $pdf->SetXY(58, 97);
+        $pdf->Cell(71, 4, $pdf->safe_text('Modificación que altera las características técnicas del tanque.'), 1, 1, 'C', false);
+
+
+        //--------------tercera columna-----------------
+        $pdf->SetXY(129, 89);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(133, 89);
+        $pdf->SetFont('Arial', '', 6.5);
+        $pdf->Cell(64, 4, $pdf->safe_text('Modificaciones que alteran las características metrológicas.'), 1, 1, 'L', false);
+        $pdf->SetXY(129, 93);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(133, 93);
+        $pdf->Cell(64, 4, $pdf->safe_text('Adulteración o falsificación en el certificado.'), 1, 1, 'C', false);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(129, 97);
+        $pdf->MultiCell(4, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(133, 97);
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(64, 4, $pdf->safe_text('A solicitud:'), 1, 1, 'C', false);
+
+        //----------------------------------------------------//
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->SetXY(9, 102);
+        $pdf->Cell(44, 2, $pdf->safe_text('4.	CONDICIONES GENERALES:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(9, 105);
+        $pdf->MultiCell(8, 12, $pdf->safe_text('4.1'), 1, 0, 'C', false);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "B", 6, "70,111,166");
+        $pdf->SetXY(17, 105);
+        $pdf->WriteTag(30, 3, "<p><b>Tanque desgasificado</b>(8.3.3 NMP 023-2021)</p>              <a>Colocar el valor %LEL cuando sea NC</a>", 1, "C");
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(47, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C1'), 1, 0, 'R', false);
+        $pdf->SetXY(47, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(54.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(47, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(54.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(47, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //------------2--------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(62, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C2'), 1, 0, 'R', false);
+        $pdf->SetXY(62, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(69.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(62, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(69.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(62, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //---------------3-------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(77, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C3'), 1, 0, 'R', false);
+        $pdf->SetXY(77, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(84.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(77, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(84.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(77, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //-----------------4-------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(92, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C4'), 1, 0, 'R', false);
+        $pdf->SetXY(92, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(99.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(92, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(99.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(92, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //-----------------5-------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(107, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C5'), 1, 0, 'R', false);
+        $pdf->SetXY(107, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(114.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(114.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(107, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(107, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //--------------------6------------------------
+
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(122, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C6'), 1, 0, 'R', false);
+        $pdf->SetXY(122, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(129.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(129.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(122, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(122, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+
+        //--------------7------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(137, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C7'), 1, 0, 'R', false);
+        $pdf->SetXY(137, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(144.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(137, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(144.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(137, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+
+        //--------------8------------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(152, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C8'), 1, 0, 'R', false);
+        $pdf->SetXY(152, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(159.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(152, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(159.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(152, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+
+        //--------------9----------------------------
+
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(167, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C9'), 1, 0, 'R', false);
+        $pdf->SetXY(167, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(174.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(167, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(174.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(167, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+
+        //-----------------10---------------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(182, 105);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('        C10'), 1, 0, 'R', false);
+        $pdf->SetXY(182, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(189.5, 108);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(182, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(189.5, 111);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(182, 114.1);
+        $pdf->MultiCell(15, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(9, 117);
+        $pdf->MultiCell(188, 6, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(8, 117);
+        $pdf->Cell(44, 2, $pdf->safe_text('Observaciones:'), 0, 1, 'L', false);
+        //----------fin-----------------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(9, 124);
+        $pdf->MultiCell(8, 9, $pdf->safe_text('4.2'), 1, 0, 'C', false);
+
+        $pdf->SetStyle("p", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "", 6, "0,0,0");
+        $pdf->SetXY(17, 124);
+        $pdf->WriteTag(30, 4.4, $pdf->safe_text("<p>Revisión de mamparas</p><b>(8.5.3.2 NMP 023-2021)   NA</b>"), 1, "C");
+        //----1-----
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(47, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C1 – C2'), 1, 0, 'R', false);
+        $pdf->SetXY(47, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(54.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(47, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(54.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //------3-----
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(62, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C2 - C3'), 1, 0, 'R', false);
+        $pdf->SetXY(62, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(69.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(62, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(69.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //------4-----------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(77, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C3 - C4'), 1, 0, 'R', false);
+        $pdf->SetXY(77, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(84.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(77, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(84.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //------5----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(92, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C4 - C5'), 1, 0, 'R', false);
+        $pdf->SetXY(92, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(99.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(92, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(99.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //------6----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(107, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C5 - C6'), 1, 0, 'R', false);
+        $pdf->SetXY(107, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(114.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(107, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(114.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //----7--------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(122, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C6 - C7'), 1, 0, 'R', false);
+        $pdf->SetXY(122, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(129.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(122, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(129.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //----8--------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(137, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C7 - C8'), 1, 0, 'R', false);
+        $pdf->SetXY(137, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(144.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(137, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(144.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //----9--------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(152, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C8 - C9'), 1, 0, 'R', false);
+        $pdf->SetXY(152, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(159.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(152, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(159.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        //----10--------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(167, 124);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(15, 3, $pdf->safe_text('    C9 - C10'), 1, 0, 'R', false);
+        $pdf->SetXY(167, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(174.5, 127);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(167, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+        $pdf->SetXY(174.5, 130);
+        $pdf->MultiCell(7.5, 3, $pdf->safe_text(''), 1, 0, 'R', false);
+
+
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(9, 133);
+        $pdf->MultiCell(173, 6, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(8, 133);
+        $pdf->Cell(44, 2, $pdf->safe_text('Observaciones:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->SetXY(9, 140);
+        $pdf->MultiCell(65, 6, $pdf->safe_text('4.3.	INSPECCION INTERNA DEL COMPARTIMIENTO'), 1, 0, 'C', false);
+        //-------------------c1----------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(74, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C1'), 1, 0, 'R', false);
+        $pdf->SetXY(74, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(79, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+
+
+        //-------------------c2----------------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(84, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C2'), 1, 0, 'R', false);
+        $pdf->SetXY(89, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(84, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c3------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(94, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C3'), 1, 0, 'R', false);
+        $pdf->SetXY(94, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(99, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c4----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(104, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C4'), 1, 0, 'R', false);
+        $pdf->SetXY(104, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(109, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c5----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(114, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C5'), 1, 0, 'R', false);
+        $pdf->SetXY(114, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(119, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c6----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(124, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C6'), 1, 0, 'R', false);
+        $pdf->SetXY(124, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(129, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c7----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(134, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C7'), 1, 0, 'R', false);
+        $pdf->SetXY(134, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(139, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c8----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(144, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C8'), 1, 0, 'R', false);
+        $pdf->SetXY(144, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(149, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c9----------------
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(154, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C9'), 1, 0, 'R', false);
+        $pdf->SetXY(154, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(159, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        //-------------------c10----------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetXY(164, 140);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->MultiCell(10, 3, $pdf->safe_text('     C10'), 1, 0, 'R', false);
+        $pdf->SetXY(164, 143);
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('C'), 1, 0, 'R', false);
+        $pdf->SetXY(169, 143);
+        $pdf->MultiCell(5, 3, $pdf->safe_text('NC'), 1, 0, 'R', false);
+        $pdf->SetXY(9, 146);
+        $pdf->MultiCell(7, 15.3, $pdf->safe_text('4.3.1'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 146);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 6, "70,111,166");
+        $pdf->WriteTag(58, 2.5, $pdf->safe_text('<p>Tanque fabricado antes de la vigencia de la NMP023:2021 Presenta elementos internos fijos (SI:  / NO ) que no se puedan desmontar que no retengan aire ni liquido: Serpentines     calentadores    Tub. Recup. - Vapor     Tub. Refuerzo tubular    Tub. No tubular      Otro  :                                                                                <a>(5.2.2.12 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 146);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+
+
+        //-----------------2col--------------------------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 161);
+        $pdf->MultiCell(7, 15.1, $pdf->safe_text('4.3.2'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 161);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2.1, $pdf->safe_text('<p>El tanque posee un serpentín de calentamiento que fue instalado antes de la vigencia de NMP 023:2021 (SI:  / NO ), el cliente presenta declaración jurada donde se indique fecha de instalación y que el elemento interno no es utilizado para productos blancos y se encuentra deshabilitado e inoperativo.                                                                                <a>(5.2.2.12 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 161);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //-----------------3col--------------------------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 176);
+        $pdf->MultiCell(7, 15.1, $pdf->safe_text('4.3.3'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 176);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2.5, $pdf->safe_text('<p>El certificado de verificación Inicial indica elementos internos fijos (SI:  / NO ), El cliente indica que (SI:  / NO ) se ha modificado elementos internos fijos declarados en el certificado de verificación inicial. Este resultado debe indicarse en el certificado posterior.                                                                                <a>8.5 NMP 023:2021)</a>No Aplica para Verificación Inicial.</p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 176);
+        $pdf->MultiCell(5, 15, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(9, 191);
+        $pdf->MultiCell(7, 6.2, $pdf->safe_text('4.3.4'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 191);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>No presenta dentro del compartimiento cualquier objeto otro cuerpo cuyo retiro o cambio podría modificar la capacidad del tanqu <a>(5.2.2.11 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 191);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //----------------6col--------------------------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 197.2);
+        $pdf->MultiCell(7, 10.2, $pdf->safe_text('4.3.5'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 197.2);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>Debe tener una forma tal que no se retenga aire durante el llenado ni líquido durante el vaciado, Ninguna estructura interna deberá dificultar el llenado o vaciado completo ni crear espacios ocultos o permita la formación de bolsas de aire en el compartimiento. <a>(5.2.2.6 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 197.2);
+        $pdf->MultiCell(5, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //----------------------7col--------------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 207.5);
+        $pdf->MultiCell(7, 8.2, $pdf->safe_text('4.3.6'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 207.5);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>Los rompeolas deben tener no menos de 3 aberturas, una inferior, una superior y la tercera a lo largo de su plano horizontal con diámetro tal que permita la inspección del compartimiento. <a>(5.2.2.6 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 207.5);
+        $pdf->MultiCell(5, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //-----------------------8col----------------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 215.5);
+        $pdf->MultiCell(7, 6.2, $pdf->safe_text('4.3.7'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 215.5);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>No se deben utilizar caños, molduras o tubos de ventilación y válvulas para cumplir con los requisitos antes mencionados <a>(5.2.2.7 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 215.5);
+        $pdf->MultiCell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //-------------------------------9col---------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 221.7);
+        $pdf->MultiCell(7, 12.2, $pdf->safe_text('4.3.8'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 221.7);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>El indicador de nivel (flecha) este instalado dentro del domo.  Su eje vertical debería estar centrado en el compartimiento de forma longitudinal y transversal. Cualquier desviación en cada dirección (izquierda, derecha, adelante o atrás) no sobrepase del 10%  de la longitud del compartimiento o 15 cm  , el que sea menor <a>(5.4.1.2 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 221.7);
+        $pdf->MultiCell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //-------------------------------9col---------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 233.8);
+        $pdf->MultiCell(7, 4.3, $pdf->safe_text('4.3.9'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 233.8);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>El dispositivo de indicación de nivel (flecha) cumple con el diseño<a>(5.4.1.2 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 233.8);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //-------------------------------11col---------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 238);
+        $pdf->MultiCell(7, 4.3, $pdf->safe_text('4.3.10'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 238);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>El dispositivo de indicación de nivel (flecha) debe garantizar una lectura segura, fácil e inequívoca<a>(5.4.1.1 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 238);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //-------------------------------12col---------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 242.3);
+        $pdf->MultiCell(7, 10.3, $pdf->safe_text('4.3.11'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 242.3);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>Revisa que la mesa de medición sea una plancha metálica plana, sin estrías, horizontal, no desmontable y que no tenga ninguna condición que pueda alterar las medidas de la cinta de sondaje (hundimiento, orificios, inclinación, etc.) <a>(5.4.2.2 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 242.3);
+        $pdf->MultiCell(5, 10.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        //-------------------------------12col---------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 252.5);
+        $pdf->MultiCell(7, 6.2, $pdf->safe_text('4.3.12'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 252.5);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>Las dimensiones de la mesa de medición de 150 mm x 150 mm debería ser suficiente para cumplir su propósito <a>(5.4.2.2 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 252.5);
+        $pdf->MultiCell(5, 6.3, $pdf->safe_text(''), 1, 0, 'C', false);
+        //-------------------------------12col---------------------------
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(9, 258.7);
+        $pdf->MultiCell(7, 4.2, $pdf->safe_text('4.3.13'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 258.7);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(58, 2, $pdf->safe_text('<p>El espesor de la mesa de medición debe ser entre 4 mm y 6 mm <a>(5.4.2.2 NMP 023:2021)</a></p>'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(79, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(84, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(94, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(99, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(104, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(109, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(114, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(119, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(124, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(129, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(134, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(144, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(154, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(159, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(164, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(169, 258.7);
+        $pdf->MultiCell(5, 4.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(9, 263);
+        $pdf->MultiCell(165, 6, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(10, 262);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->Cell(44, 4, $pdf->safe_text('Observaciones:'), 0, 1, 'L', false);
+        $pdf->SetXY(10, 266);
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->Cell(44, 4, $pdf->safe_text('LOS REQUISITOS DEL CAPITULO 5 NO APLICAN PARA VERIFICACION POSTERIOR.'), 0, 1, 'L', false);
+
+        //-----------------------medicion de mesa ------------------
+        $pdf->SetXY(9, 270);
+        $pdf->MultiCell(26, 4, $pdf->safe_text('MEDICIÓN DE MESA '), 1, 0, 'C', false);
+        $pdf->SetXY(35, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('1'), 1, 0, 'C', false);
+        $pdf->SetXY(48, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('2'), 1, 0, 'C', false);
+        $pdf->SetXY(61, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('3'), 1, 0, 'C', false);
+        $pdf->SetXY(74, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('4'), 1, 0, 'C', false);
+        $pdf->SetXY(87, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('5'), 1, 0, 'C', false);
+        $pdf->SetXY(100, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('6'), 1, 0, 'C', false);
+        $pdf->SetXY(113, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('7'), 1, 0, 'C', false);
+        $pdf->SetXY(126, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('8'), 1, 0, 'C', false);
+        $pdf->SetXY(139, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('9'), 1, 0, 'C', false);
+        $pdf->SetXY(152, 270);
+        $pdf->Cell(13, 4, $pdf->safe_text('10'), 1, 0, 'C', false);
+        //-----------------------2da fila ------------------
+        $pdf->SetXY(9, 274);
+        $pdf->MultiCell(26, 4, $pdf->safe_text('Longitud cm             NA '), 1, 0, 'C', false);
+        $pdf->SetXY(35, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(48, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(61, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(74, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(87, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(126, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(152, 274);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        //-----------------------3ra fila ------------------
+        $pdf->SetXY(9, 278);
+        $pdf->MultiCell(26, 4, $pdf->safe_text('Espesor mm         NA'), 1, 0, 'C', false);
+        $pdf->SetXY(35, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(48, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(61, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(74, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(87, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(126, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(139, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(152, 278);
+        $pdf->Cell(13, 4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->AddPage();
+        $pdf->SetXY(9, 40);
+        $pdf->Cell(62, 6, $pdf->safe_text('4.4	INSPECCION EXTERNA DEL COMPARTIMIENTO'), 1, 0, 'L', false);
+        //------c1------------
+        $pdf->SetXY(71, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C1'), 1, 0, 'C', false);
+        $pdf->SetXY(71, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(77, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+
+        //---------c2--------------
+        $pdf->SetXY(83, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C2'), 1, 0, 'C', false);
+        $pdf->SetXY(83, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(89, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c3-------------------
+        $pdf->SetXY(95, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C3'), 1, 0, 'C', false);
+        $pdf->SetXY(95, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(101, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c4-------------------
+        $pdf->SetXY(107, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C4'), 1, 0, 'C', false);
+        $pdf->SetXY(107, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(113, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c5-------------------
+        $pdf->SetXY(119, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C5'), 1, 0, 'C', false);
+        $pdf->SetXY(119, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(125, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c6-------------------
+        $pdf->SetXY(131, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C6'), 1, 0, 'C', false);
+        $pdf->SetXY(131, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(137, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c7-------------------
+        $pdf->SetXY(143, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C7'), 1, 0, 'C', false);
+        $pdf->SetXY(143, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(149, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c8-------------------
+        $pdf->SetXY(155, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C8'), 1, 0, 'C', false);
+        $pdf->SetXY(155, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(161, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c9-------------------
+        $pdf->SetXY(167, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C9'), 1, 0, 'C', false);
+        $pdf->SetXY(167, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(173, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //--------c10-------------------
+        $pdf->SetXY(179, 40);
+        $pdf->Cell(12, 3, $pdf->safe_text('C10'), 1, 0, 'C', false);
+        $pdf->SetXY(179, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(185, 43);
+        $pdf->Cell(6, 3, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        //----------datos 1fila---------------------
+        $pdf->SetXY(9, 46);
+        $pdf->Cell(7, 10.2, $pdf->safe_text('4.4.1'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 46);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>Debe asegurar la descarga completa y rápida por gravedad del líquido contenido en el tanque.El dispositivo de descarga debe estar conectado a la parte más baja del cuerpo del tanque. (8.3.3 NMP 023-2021)Colocar el valor %LEL cuando sea NC<a> (5.3.1.1 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(71, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 46);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //------------datos 2fila-----------
+        $pdf->SetXY(9, 56.2);
+        $pdf->Cell(7, 8.2, $pdf->safe_text('4.4.2'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 56.2);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>El tanque es de construcción especial para aeropuertos (SI: ☐ / NO ☐).  Se permite la presencia de un dispositivo para recolectar el agua y las impurezas depositadas por el líquido contenido.<a>(5.3.1.2 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(9, 56.2);
+
+
+
+        $pdf->SetXY(71, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 56.2);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //------------datos 3fila-----------
+        $pdf->SetXY(9, 64.4);
+        $pdf->Cell(7, 8.2, $pdf->safe_text('4.4.3'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 64.4);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>Cada compartimiento debe tener una tubería de descarga independiente. Las tuberías deben identificarse claramente con el número correspondiente al compartimiento al que pertenecen <a>(5.3.1.4 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(9, 64.4);
+
+        $pdf->SetXY(71, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 64.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //------------datos 4fila-----------
+        $pdf->SetXY(9, 72.6);
+        $pdf->Cell(7, 10.2, $pdf->safe_text('4.4.4'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 72.6);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>Las válvulas de cierre deben ser fácilmente accesibles y colocarse en la parte trasera o en el lado apropiado del tanque. Las tuberías de descarga, válvulas y sus conexiones no deben presentar fugas.<a>                               (5.3.1.6 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(9, 72.6);
+
+        $pdf->SetXY(71, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 72.6);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //------------datos 5fila-----------
+        $pdf->SetXY(9, 82.8);
+        $pdf->Cell(7, 8.2, $pdf->safe_text('4.4.5'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 82.8);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>Cada compartimiento debe estar provisto de un dispositivo de cierre (manual o automático) separado en cada línea de descarga.<a>                                                              (5.3.1.7 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(9, 82.8);
+
+        $pdf->SetXY(71, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 82.7);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //------------datos 6fila-----------
+        $pdf->SetXY(9, 90.9);
+        $pdf->Cell(7, 8.2, $pdf->safe_text('4.4.6'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 90.9);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>Cerca de la parte más baja de cada línea, se pueden instalar detectores de líquidos o mirillas (SI:  / NO )., para verificar la vaciedad. <a>                                                              (5.3.1.8 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(9, 88.7);
+
+        $pdf->SetXY(71, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 90.9);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+
+        //------------datos 7fila-----------
+        $pdf->SetXY(9, 99.2);
+        $pdf->Cell(7, 6.2, $pdf->safe_text('4.4.7'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 99.2);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>La tubería no debe ser flexible y debe estar instalada rígidamente. (5.3.1.9 NMP 023:2021)<a>                                                              (5.3.1.9 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(9, 99.2);
+
+        $pdf->SetXY(71, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 99.2);
+        $pdf->Cell(6, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+
+        //------------datos 8fila-----------
+        $pdf->SetXY(9, 105.4);
+        $pdf->Cell(7, 8.2, $pdf->safe_text('4.4.8'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 105.4);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, utf8_decode("<p>Las líneas y dispositivos de control cuya manipulación podría falsear el resultado de medición, deben ser protegidos contra manipulaciones imprudentes <a>                                                              (5.3.1.10 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(71, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 105.4);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        //------------datos 9fila-----------
+        $pdf->SetXY(9, 113.6);
+        $pdf->Cell(7, 8.2, $pdf->safe_text('4.4.9'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 113.6);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, iconv('UTF-8', 'ISO-8859-1', "<p>El tubo de descarga es lo más corto posible y tiene una pendiente suficiente hacia la válvula de cierre.Se recomienda una pendiente de por lo menos 2°. <a href='#'>                       (5.3.1.3 NMP 023)</a></p>"), 1, "J");
+        $pdf->SetXY(71, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 113.6);
+        $pdf->Cell(6, 8.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        //------------datos 10fila-----------
+        $pdf->SetXY(9, 121.9);
+        $pdf->Cell(7, 10.2, $pdf->safe_text('4.4.10'), 1, 0, 'C', false);
+        $pdf->SetXY(16, 121.9);
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(55, 2, iconv('UTF-8', 'ISO-8859-1', "<p>Las válvulas de emergencia y las válvulas de descarga deben estar en buenas condiciones, Las tapas de las válvulas de descarga deben tener orificios para ser precintados y/o sellados.<a href='#'>                        (5.1.6.3 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(71, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(77, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(83, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(89, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(95, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(101, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(107, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(113, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(119, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(125, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(131, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(137, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(143, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(149, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(155, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(161, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(167, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(173, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(179, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185, 121.9);
+        $pdf->Cell(6, 10.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(9, 132);
+        $pdf->Cell(182, 8, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(10, 132);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->Cell(44, 4, $pdf->safe_text('Observaciones:'), 0, 1, 'L', false);
+        $pdf->SetXY(10, 136);
+        $pdf->SetFont('Arial', 'B', 5);
+        $pdf->Cell(44, 4, $pdf->safe_text('LOS REQUISITOS DEL CAPITULO 5 NO APLICAN PARA VERIFICACION POSTERIOR.'), 0, 1, 'L', false);
+        $pdf->SetXY(10, 144);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Arial', 'B', 5);
+        $pdf->Cell(85, 4, $pdf->safe_text('4.5  INSPECCION DEL TANQUE'), 1, 1, 'L', false);
+        $pdf->SetXY(95, 144);
+        $pdf->Cell(5, 4, $pdf->safe_text('C'), 1, 0, 'C', false);
+        $pdf->SetXY(100, 144);
+        $pdf->Cell(5, 4, $pdf->safe_text('NC'), 1, 0, 'C', false);
+        $pdf->SetXY(105, 144);
+        $pdf->SetFont('Arial', 'B', 5);
+        $pdf->Cell(85, 4, $pdf->safe_text('  INSPECCION DEL TANQUE'), 1, 1, 'L', false);
+        $pdf->SetXY(10, 148);
+        $pdf->Cell(10, 6.2, $pdf->safe_text('4.5.1'), 1, 0, 'C', false);
+        $pdf->SetXY(20, 148);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(75, 3, iconv('UTF-8', 'ISO-8859-1', "<p>Si el tanque está dividido en compartimientos, cada uno debe ser considerado como un tanque separado. <a href='#'>                                          (3.2.1 NMP 023-2021)</a></p>"), 1, "J");
+        $pdf->SetXY(95, 148);
+        $pdf->Cell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 148);
+        $pdf->Cell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(10, 154.3);
+        $pdf->Cell(10, 5.9, $pdf->safe_text('4.5.2'), 1, 0, 'C', false);
+        $pdf->SetXY(20, 154.2);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(75, 2.9, iconv('UTF-8', 'ISO-8859-1', "<p>Cada tanque debe estar compuesto de un cuerpo y dispositivos de descarga.<a href='#'>                                          (3.2.2 NMP 023-2021)</a></p>"), 1, "J");
+        $pdf->SetXY(95, 154);
+        $pdf->Cell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 154);
+        $pdf->Cell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(10, 160.2);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(10, 12, $pdf->safe_text('4.5.3'), 1, 0, 'C', false);
+        $pdf->SetXY(20, 160.4);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(75, 2.9, iconv('UTF-8', 'ISO-8859-1', "<p>Los compartimientos deben ser identificados en orden numérico ascendente, a partir del compartimiento más próximo a la cabina del vehículo y sus respectivas capacidades nominales deben indicarse. <a href='#'>                                          (5.1.6.2 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(95, 160);
+        $pdf->Cell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 160);
+        $pdf->Cell(5, 12.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(10, 172);
+        $pdf->Cell(10, 6, $pdf->safe_text('4.5.4'), 1, 0, 'C', false);
+        $pdf->SetXY(20, 172.1);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(75, 2.9, iconv('UTF-8', 'ISO-8859-1', "<p>La superficie del tanque no presenta abolladuras, perforaciones u otros que ocasionen fugas<a href='#'>                                          (5.1.6.3 NMP 023:2021)</a></p>"), 1, "J");
+        $pdf->SetXY(95, 172.5);
+        $pdf->Cell(5, 5.7, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(100, 172.5);
+        $pdf->Cell(5, 5.7, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(10, 178);
+        $pdf->Cell(10, 8.9, $pdf->safe_text('4.5.6'), 1, 0, 'C', false);
+        $pdf->SetXY(20, 178);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(75, 2.9, iconv('UTF-8', 'ISO-8859-1', "<p>El material del tanque tiene un coeficiente de dilatación lineal inferior a 33 x 10-6 °C-1 o el coeficiente de dilatación cubica es menor que 99 x 10-6 °C-1<a href='#'>                                          (5.2.2.5 NMP 023)</a></p>"), 1, "J");
+
+        $pdf->SetXY(105, 148);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(8, 6.2, $pdf->safe_text('4.5.7'), 1, 0, 'C', false);
+        $pdf->SetXY(113, 148);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(67.5, 2, iconv('UTF-8', 'ISO-8859-1', "<p>El material del tanque tiene un coeficiente de dilatación lineal inferior a 33 x 10-6 °C-1 o el coeficiente de dilatación cubica es menor que 99 x 10-6 °C-1<a href='#'>                                          (5.2.2.5 NMP 023)</a></p>"), 1, "J");
+        $pdf->SetXY(180.5, 148);
+        $pdf->Cell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185.5, 148);
+        $pdf->Cell(4.5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(105, 154);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(8, 6.2, $pdf->safe_text('4.5.8'), 1, 0, 'C', false);
+        $pdf->SetXY(113, 154);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(67.5, 3, iconv('UTF-8', 'ISO-8859-1', "<p>El domo debe estar montado en la parte superior del cuerpo, al cual debe estar soldado. <a href='#'>                                          (5.5.5 NMP 023)</a></p>"), 1, "J");
+        $pdf->SetXY(180.5, 154);
+        $pdf->Cell(5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185.5, 154);
+        $pdf->Cell(4.5, 6.2, $pdf->safe_text(''), 1, 0, 'C', false);
+
+        $pdf->SetXY(105, 160);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(8, 12.4, $pdf->safe_text('4.5.9'), 1, 0, 'C', false);
+        $pdf->SetXY(113, 160);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(67.5, 6.1, iconv('UTF-8', 'ISO-8859-1', "<p> de dilatación cubica es menor que 99 x 10-6 °C-1<a href='#'>                                          (5.2.2.5 NMP 023)</a></p>"), 1, "J");
+        $pdf->SetXY(180.5, 160.1);
+        $pdf->Cell(5, 12.4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185.5, 160.1);
+        $pdf->Cell(4.5, 12.4, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetTextColor(0, 0, 0);
+
+        $pdf->SetXY(105, 172.3);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(8, 6, $pdf->safe_text('4.5.10'), 1, 0, 'C', false);
+        $pdf->SetXY(113, 172.3);;
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "", 5, "70,111,166");
+        $pdf->WriteTag(67.5, 2.8, iconv('UTF-8', 'ISO-8859-1', "<p>El domo puede tener forma cilíndrica o paralelepipédica, con paredes laterales verticales <a href='#'>                                          (5.2.2.5 NMP 023)</a></p>"), 1, "J");
+        $pdf->SetXY(180.5, 172.3);
+        $pdf->Cell(5, 6, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetXY(185.5, 172.3);
+        $pdf->Cell(4.5, 6, $pdf->safe_text(''), 1, 0, 'C', false);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY(95, 178);
+        $pdf->Cell(95.1, 9, $pdf->safe_text('Material:                                                    // Placa fab.       // Cert. fab.       // Dec. Jurada   '), 1, 0, 'C', false);
+        $pdf->SetXY(10, 187);
+        $pdf->Cell(180, 9, $pdf->safe_text('LOS REQUISITOS DEL CAPITULO 5 NO APLICAN PARA VERIFICACION POSTERIOR.'), 1, 0, 'C', false);
+        $pdf->SetXY(10, 187);
+        $pdf->Cell(44, 4, $pdf->safe_text('Observaciones:'), 0, 1, 'L', false);
+
+
+
+
+
+
+
+
+
+        ob_end_clean(); // limpia el buffer de salida
+        $pdf->Output('I', 'Reporte de campo.pdf');
+    }*/
+    public function generar3()
+    {
+        $pdf = new PDF();
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(true, 15);
+        $pdf->SetXY(65, 43);
+        $pdf->Cell(44, 4, $pdf->safe_text('CERTIFICADO DE CALIBRACION'), 0, 1, 'L', false);
+        $pdf->SetXY(75, 48);
+        $pdf->Cell(44, 4, $pdf->safe_text('TH-2025-NA-0110'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->SetXY(135, 48);
+        $pdf->Cell(44, 4, $pdf->safe_text('# Expediente:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetXY(165, 48);
+        $pdf->Cell(44, 4, $pdf->safe_text('LTH-2025-NA-0138'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 58);
+        $pdf->Cell(44, 4, $pdf->safe_text('1'), 0, 1, 'L', false);
+        $pdf->SetXY(13, 58);
+        $pdf->Cell(44, 4, $pdf->safe_text('RUC'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(43, 58);
+        $pdf->Cell(44, 4, $pdf->safe_text('   :  10484776623'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 63);
+        $pdf->Cell(44, 4, $pdf->safe_text('2'), 0, 1, 'L', false);
+        $pdf->SetXY(13, 63);
+        $pdf->Cell(44, 4, $pdf->safe_text('Solicitante'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(43, 63);
+        $pdf->Cell(44, 4, $pdf->safe_text('   :  BOTICA DEYFARMA'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 68);
+        $pdf->Cell(44, 4, $pdf->safe_text('3'), 0, 1, 'L', false);
+        $pdf->SetXY(13, 68);
+        $pdf->Cell(44, 4, $pdf->safe_text('Nombre comercial'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(43, 68);
+        $pdf->MultiCell(44, 4, $pdf->safe_text('   :  BOTICA DEYFARMA'), 0, 1, 0, 'L', false);
+
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 73);
+        $pdf->Cell(44, 4, $pdf->safe_text('4'), 0, 1, 'L', false);
+        $pdf->SetXY(13, 73);
+        $pdf->Cell(44, 4, $pdf->safe_text('Direccion'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(43, 73);
+        $pdf->MultiCell(100, 4, $pdf->safe_text('   :  CALLE JUAN RAMOS N°150 URB.URB. PRIMAVERA'), 0, 1, 0, 'L', false);
+
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 79);
+        $pdf->Cell(44, 4, $pdf->safe_text('5'), 0, 1, 'L', false);
+        $pdf->SetXY(13, 79);
+        $pdf->Cell(44, 4, $pdf->safe_text('Instrumento'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(43, 79);
+        $pdf->MultiCell(100, 4, $pdf->safe_text('   :  INSTRUMENTO DE MEDICIÓN DE TEMPERATURA Y HUMEDAD'), 0, 1, 0, 'L', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(12, 84);
+        $pdf->SetXY(15, 84);
+        $pdf->Cell(44, 4, $pdf->safe_text('Descripción'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(44, 84);
+        $pdf->MultiCell(100, 4, $pdf->safe_text('   :  TERMOHIGRÓMETRO'), 0, 1, 0, 'L', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 89);
+        $pdf->Cell(44, 4, $pdf->safe_text('Intervalo de indicación:'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 89);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':T IN:-10 C a 50 C HR IN:20% a 99% T OUT:-50 C a 70 C'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(12, 102);
+        $pdf->Cell(44, 4, $pdf->safe_text('Resolución:'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 102);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':T IN:-10 C a 50 C HR IN:20% a 99% T OUT:-50 C a 70 C'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 116);
+        $pdf->Cell(44, 4, $pdf->safe_text('Marca:'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 116);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':BOECO'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 123);
+        $pdf->Cell(44, 4, $pdf->safe_text('Modelo:'), 0, 1, 'L', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 123);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':NO INDICA'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 130);
+        $pdf->Cell(44, 4, $pdf->safe_text('N° de serie:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 130);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':NO INDICA'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 137);
+        $pdf->Cell(44, 4, $pdf->safe_text('Código de identificación:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 137);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':02-722[*]'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 145);
+        $pdf->Cell(44, 4, $pdf->safe_text('Procedencia:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 145);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':NO INDICA'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 152);
+        $pdf->Cell(44, 4, $pdf->safe_text('Indicación:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 152);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':DIGITAL'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(10, 160);
+        $pdf->Cell(44, 4, $pdf->safe_text('6'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 160);
+        $pdf->Cell(44, 4, $pdf->safe_text('Fecha de calibración:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 160);
+        $pdf->MultiCell(35, 4, $pdf->safe_text(':3/09/2025'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(10, 170);
+        $pdf->Cell(44, 4, $pdf->safe_text('7'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 170);
+        $pdf->Cell(44, 4, $pdf->safe_text('Lugar de calibración:'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 170);
+        $pdf->MultiCell(75, 4, $pdf->safe_text(':LABORATORIO DE CALIBRACIÓN DE TEMPERATURA Y HUMEDAD DE S&H INGENIEROS - SEDE CHICLAYO'), 0, 1, 0, 'C', false);
+
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(10, 180);
+        $pdf->Cell(44, 4, $pdf->safe_text('8'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 180);
+        $pdf->Cell(44, 4, $pdf->safe_text('Fecha de emisión'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 180);
+        $pdf->MultiCell(75, 4, $pdf->safe_text(':3/09/2025'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(10, 190);
+        $pdf->Cell(44, 4, $pdf->safe_text('8'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(15, 188);
+        $pdf->Cell(44, 4, $pdf->safe_text('Sticker de calibración N°'), 0, 1, 'L', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(50, 188);
+        $pdf->MultiCell(75, 4, $pdf->safe_text(':N0942'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 195);
+        $pdf->MultiCell(75, 4, $pdf->safe_text('10.	Metodo de calibracion    :'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(10, 200);
+        $pdf->MultiCell(145, 3, $pdf->safe_text('Método de comparación directa, según el procedimiento de calibración PC-026: 2019 Procedimiento para la calibraciòn de higrómetros y termómetros ambientales. Ed. 1º diciembre, 2019.
+Método de comparación directa, según el procedimiento de calibración PC-017:2019 Procedimiento para la calibraciòn de termómetros digitales. Ed. 2º diciembre 2012'), 0, 1, 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 215);
+        $pdf->MultiCell(75, 4, $pdf->safe_text('11.	Trazabilidad    :'), 0, 1, 0, 'C', false);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(10, 220);
+        $pdf->MultiCell(145, 3, $pdf->safe_text('Los resultados de la calibracion realizada tienen trazabilidad a los patrones nacionales del INACAL-DM, en concordancia con el Sistema Internacional de Unidades de Medida (SI) y el Sistema Legal de Unidades de Medida del Perú (SLUMP)'), 0, 1, 0, 'C', false);
+
+
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(11, 230);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 4, $pdf->safe_text('Nombre del equipo'), 1, 1, 1, 'C', false);
+
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(11, 234);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 10, $pdf->safe_text('TERMÓMETRO'), 1, 'C', false);
+
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(11, 244);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 10, $pdf->safe_text('HIGRÓMETRO'), 1, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(46, 230);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 4, $pdf->safe_text('Codigo'), 1, 'C', true);
+
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(46, 234);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 10, $pdf->safe_text('DTHP-SH-01'), 1, 'C', false);
+
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(46, 244);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 10, $pdf->safe_text('DTHP-SH-01'), 1, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(81, 230);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 4, $pdf->safe_text('Certificado de calibración'), 1, 'C', true);
+
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(81, 234);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 5, $pdf->safe_text('LH-084-2025 / INACAL -DM.Incertidumbre de 1.5 °C'), 1, 'C', false);
+
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY(81, 244);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(35, 5, $pdf->safe_text('LH-084-2025 / INACAL -DM.Incertidumbre de 0.22 %'), 1, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(9, 255);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(45, 4, $pdf->safe_text('12. Condiciones ambientales :'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(11, 262);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('Temperatura ambiental     :'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(11, 268);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('Humedad                           :'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(40, 257);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('Inicio'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(70, 257);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('Final'), 0, 'C', false);
+
+
+        //valores
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(40, 262);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('20.3 °C'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(40, 268);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('57.04%'), 0, 'C', false);
+
+        //valores
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(70, 262);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('20.3 °C'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(70, 268);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(40, 4, $pdf->safe_text('59%'), 0, 'C', false);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(136, 68);
+
+        // Color del TEXTO
+        $pdf->SetTextColor(0, 0, 0);
+
+        // Fondo gris
+        $pdf->SetFillColor(219, 219, 219);
+
+        // ESTILOS para WriteTag
+        $pdf->SetStyle("p", "Arial", "", 7, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 7, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "B", 7, "70,111,166");
+
+
+        $pdf->SetStyle("p", "Arial", "", 6, "0,0,0");
+        $pdf->SetStyle("b", "Arial", "B", 6, "0,0,0");
+        $pdf->SetStyle("a", "Arial", "B", 6, "70,111,166");
+        $pdf->SetXY(135, 58);
+        $pdf->WriteTag(70, 5, $pdf->safe_text("
+        <p>Los resultados del presente certificado se refieren al momento y condiciones en el que se realizaron las mediciones y son válidos solo para el ítem calibrado identificado con el sticker de calibración con número indicado en el punto 9 del presente certificado. Estos datos tambien se encuentran en el ítem calibrado para su respectiva identificación.
+        
+        Este certificado de calibración documenta la trazabilidad a los patrones nacionales, que realizan las unidades de medida de acuerdo con el Sistema Internacional de Unidades (SI).
+        
+        Se recomienda al usuario calibrar el instrumento a intervalos adecuados, los cuales deben ser elegidos con base en las características del trabajo realizado, el mantenimiento, conservación y el tiempo de uso del instrumento.
+        
+        S&H Ingenieros S.R.L no se responsabiliza de los perjuicios que pueda ocasionar el uso inadecuado de este instrumento o equipo después de su calibración, ni de una incorrecta interpretación de los resultados de la calibración aquí declarados.
+        
+        Este certificado de calibración no podrá ser reproducido parcialmente, excepto con autorización previa por escrito de S&H Ingenieros S.R.L.
+        
+        El certificado de calibración es un documento oficial de interés público, su adulteración o uso indebido constituye delito contra la fe pública y se regula por las disposiciones penales y civiles de la materia.
+        
+        El certificado de calibración no es válido sin el sticker de calibración y sin la firma del responsable del área de S&H Ingenieros S.R.L.
+        </p>
+        "), "L", "J");
+
+        $pdf->SetFont('Arial', '', 8);
+
+
+
+
+        $pdf->Line(155, 200, 195, 200);
+
+        // Texto centrado bajo la línea
+        $pdf->SetXY(125, 202);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(100, 5, 'Firma del Responsable', 0, 0, 'C');
+
+        $x = 155;
+        $y = 182;
+        $w = 35;
+        $h = 35;
+        $pdf->Image(__DIR__ . '/../assets/img/firma_prueba.png', $x, $y, $w, $h);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(140, 260);
+        $pdf->SetFillColor(219, 219, 219);
+        $pdf->MultiCell(60, 4, $pdf->safe_text('Consulte la emisión de este certificado en:https://syhing.com/certificacion/También lo puede hacer escaneando el código QR,con cualquier lector de códigos desde su smartphone'), 0, 'C', false);
+
+
+        $x = 155;
+        $y = 220;
+        $w = 35;
+        $h = 35;
+        $pdf->Image(__DIR__ . '/../assets/img/qr.png', $x, $y, $w, $h);
+
+        $pdf->AddPage();
+
+        $pdf->SetXY(80, 42);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(45, 5, $pdf->safe_text('PARA EL TERMÓMETRO INTERNO'), 0, 0, 'C');
+
+        $pdf->SetXY(9, 48);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(58, 12, $pdf->safe_text('INDICACIÓN DEL TERMÓMETRO(°C)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(9, 60);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(58, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(32, 62);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('14.8'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 70);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('19.8'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 77);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('24.9'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 84);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('30.0'), 0, 0, 0, 'C');
+        //2da columna 
+
+        $pdf->SetXY(67, 48);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(50, 12, $pdf->safe_text('                 CORRECIÓN(°C)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(67, 60);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(50, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(94, 62);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 70);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 77);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 84);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+
+        //3ra columna 
+
+        $pdf->SetXY(117, 48);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 12, $pdf->safe_text('               TCV(°C)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(117, 60);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(136, 62);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 70);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 77);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 84);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+
+        //4ta columna 
+
+        $pdf->SetXY(157, 48);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 6, $pdf->safe_text('INCERTIDUMBRE DE LA MEDICIÓN(°C)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(157, 60);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(174, 62);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 70);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 77);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 84);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+        $pdf->SetXY(9, 95);
+        $pdf->cell(188,5, $pdf->safe_text('Termperatura convencionalmente verdadera (TCV) = Indicación del termómetro + correción'),1,0,'C', false);
+
+        // 2da columna higrometro
+
+
+        $pdf->SetXY(80, 102);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(45, 5, $pdf->safe_text('PARA EL HIGRÓMETRO'), 0, 0, 'C');
+
+        $pdf->SetXY(9, 110);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(59, 12, $pdf->safe_text('INDICACIÓN DEL HIGRÓMETRO(%hr)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(9, 122);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(58, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(32, 127);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('14.8'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 134);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('19.8'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 141);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('24.9'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 148);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('30.0'), 0, 0, 0, 'C');
+        //2da columna 
+
+        $pdf->SetXY(67, 110);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(50, 12, $pdf->safe_text('                 CORRECIÓN(%hr)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(67, 122);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(50, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(94, 127);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 134);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 141);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 148);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+
+        //3ra columna 
+
+        $pdf->SetXY(117, 110);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 12, $pdf->safe_text('               HCV(%hr)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(117, 122);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(136, 127);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 134);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 141);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 148);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+        //4ta columna 
+
+        $pdf->SetXY(157, 110);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 6, $pdf->safe_text('INCERTIDUMBRE DE LA MEDICIÓN(°%hr)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(157, 122);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(174, 128);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 135);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 142);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 149);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+        $pdf->SetXY(9, 157);
+        $pdf->cell(188,5, $pdf->safe_text('Humedad relativa convencionalmente verdadera (HCV) = Indicación del higrómetro + correción'),1,0,'C', false);
+
+
+        // 3ra columna higrometro
+
+
+        $pdf->SetXY(80, 167);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(45, 5, $pdf->safe_text('PARA EL TERMÓMETRO EXTERNO'), 0, 0, 'C');
+
+        $pdf->SetXY(9, 177);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(58, 12, $pdf->safe_text('INDICACIÓN DEL HIGRÓMETRO(°C)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(9, 189);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(58, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(32, 193);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('14.8'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 200);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('19.8'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 207);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('24.9'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(32, 214);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('30.0'), 0, 0, 0, 'C');
+        //2da columna 
+
+        $pdf->SetXY(67, 177);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(50, 12, $pdf->safe_text('                 CORRECIÓN(%hr)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(67, 189);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(50, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(94, 193);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 200);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 207);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(94, 214);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+
+        //3ra columna 
+
+        $pdf->SetXY(117, 177);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 12, $pdf->safe_text('               HCV(%hr)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(117, 189);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(136, 193);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 200);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 207);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(136, 214);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+        //4ta columna 
+
+        $pdf->SetXY(157, 177);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 6, $pdf->safe_text('INCERTIDUMBRE DE LA MEDICIÓN(°C)'), 1, 0, 1, 'C');
+
+        $pdf->SetXY(157, 189);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(40, 35, $pdf->safe_text(''), 1, 0, 0, 'C');
+
+        $pdf->SetXY(174, 193);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 200);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.2'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 207);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.1'), 0, 0, 0, 'C');
+
+        $pdf->SetXY(174, 214);
+        $pdf->SetFillColor(105, 133, 181);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(28, 5, $pdf->safe_text('0.0'), 0, 0, 0, 'C');
+        $pdf->SetXY(9, 224);
+        $pdf->cell(188,5, $pdf->safe_text('Humedad relativa convencionalmente verdadera (HCV) = Indicación del higrómetro + correción'),1,0,'C', false);
+
+        $pdf->SetXY(12, 232);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->cell(8,5, $pdf->safe_text('14.	Aclaraciones'),0,0,'C', false);
+
+        $pdf->SetXY(80, 237);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->cell(48,5, $pdf->safe_text('- Se colocó un sticker con fines de identificación interna válido durante su permanencia en el laboratorio de calibración con código 02-722.'),0,0,'C', false);
+
+
+        $pdf->SetXY(17, 242);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Multicell(190,5, $pdf->safe_text('- La incertidumbre expandida de medición reportada en el presente certificado de calibración resulta de multiplicar la incertidumbre estándar combinada por el factor de cobertura k=2 de modo que la probabilidad de cobertura corresponde aproximadamente a un nivel de confianza del 95%. La incertidumbre fue determinada según la "Guía para la expresión de la incertidumbre de medición" segunda edición, Julio del 2001.'),0,'J', false);
+
+        
+        $pdf->SetXY(42, 257);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->cell(48,5, $pdf->safe_text('- [*] Código de identificación impreso en una etiqueta adherida al instrumento.'),0,0,'C', false);
+
+        $pdf->SetXY(34, 262);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->cell(48,5, $pdf->safe_text('- Se calibró siguiendo los estándares de NTP-ISO 17025 (2017).'),0,0,'C', false);
+
+
+
+        ob_end_clean(); // limpia el buffer de salida
+        $pdf->Output('I', 'Certificado.pdf');
+    }
 }
 
 // --- Dispatcher mínimo cuando se accede directamente a este archivo ---
@@ -495,6 +3501,24 @@ if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? '')) {
         header('Content-Type: text/plain; charset=utf-8');
         http_response_code(400);
         echo 'Error: ID inválido.';
+        exit;
+    }
+    /*if ($action === 'generar2') {
+        if (isset($_GET['action']) && $_GET['action'] == 'generar2') {
+            $controller = new proformasController();
+            $controller->generar2();
+        }
+        header('Content-Type: text/plain; charset=utf-8');
+        http_response_code(400);
+        exit;
+    }*/
+    if ($action === 'generar3') {
+        if (isset($_GET['action']) && $_GET['action'] == 'generar3') {
+            $controller = new proformasController();
+            $controller->generar3();
+        }
+        header('Content-Type: text/plain; charset=utf-8');
+        http_response_code(400);
         exit;
     }
     if ($action === 'guardar') {

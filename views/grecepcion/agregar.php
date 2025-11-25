@@ -13,6 +13,21 @@ $clientes = $clienteController->listarClienteprof($id);
 $controller = new tipoController();
 $tipos = $controller->listar(); // array de clientes
 ?>
+<?php
+require_once __DIR__ . "/../../models/proformas.php";
+
+$ids = isset($_GET['ids']) ? explode(",", $_GET['ids']) : [];
+
+$datosProformas = [];
+
+if (!empty($ids)) {
+    $model = new proformas();
+
+    foreach ($ids as $id) {
+        $datosProformas[] = $model->obtenerPorId($id);
+    }
+}
+?>
 <div class="content-wrapper">
 
     <!-- ENCABEZADO -->
@@ -24,18 +39,6 @@ $tipos = $controller->listar(); // array de clientes
         </div>
         <hr class="mt-3 mb-4">
     </section>
-
-    <!-- MENSAJES DE ERROR -->
-    <?php if (isset($_GET['msg']) && $_GET['msg'] == 'error' && isset($_GET['error'])): ?>
-    <section class="content">
-        <div class="container-fluid">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong><i class="fas fa-exclamation-triangle me-2"></i>Error:</strong> <?php echo htmlspecialchars(urldecode($_GET['error'])); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-    </section>
-    <?php endif; ?>
 
     <!-- FORMULARIO -->
     <section class="content">
@@ -50,6 +53,9 @@ $tipos = $controller->listar(); // array de clientes
                             </td>
                         </tr>
                         <tr>
+                            <?php
+                            $proforma = !empty($datosProformas) ? $datosProformas[0]['cabecera'] : null;
+                            ?>
                             <td style="padding: 20px;">
                                 <form id="form-guia-recepcion" method="POST" action="<?php echo APP_URL; ?>controllers/grecepcionController.php?action=guardar">
                                     <table width="100%" cellpadding="10" cellspacing="0" border="0">
@@ -59,28 +65,14 @@ $tipos = $controller->listar(); // array de clientes
                                                 <label for="idproforma"><strong>Nº Proforma <span style="color: red;">*</span></strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <select name="idproforma" id="idproforma" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
-                                                    <option value="">Seleccione Nº Proforma</option>
-                                                    <?php foreach ($proformas as $p): ?>
-                                                        <option value="<?php echo htmlspecialchars($p['id']); ?>">
-                                                            <?php echo htmlspecialchars($p['codigo']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
+                                                <input type="text" id="codigo" placeholder="" value="<?php echo $proforma['codigo'] ?>" autocomplete="off" style="width: 100%; padding: 8px; border: 1px solid #ccc;">
                                             </td>
                                             <!-- CLIENTE -->
                                             <td width="20%" align="right" valign="top" style="padding-right: 15px;">
                                                 <label for="idcliente"><strong>Cliente <span style="color: red;">*</span></strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <select name="idcliente" id="idcliente" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
-                                                    <option value="">Seleccione un cliente</option>
-                                                    <?php foreach ($clientes as $c): ?>
-                                                        <option value="<?php echo htmlspecialchars($c['id']); ?>">
-                                                            <?php echo htmlspecialchars($c['nombres']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
+                                                <input list="listaClientes" name="idcliente" id="idcliente" value="<?php echo $proforma['nombres'] ?>" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
                                             </td>
                                         </tr>
 

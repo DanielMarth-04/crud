@@ -19,8 +19,8 @@ $proformas = $controller->listar();
         <a href="<?php echo APP_URL; ?>?views=proformas/agregar" class="btn btn-primary shadow-sm">
           <i class="fas fa-plus-circle me-1"></i> Proforma
         </a>
-        <button id="btnGenerarGuia" class="btn btn-success shadow-sm">
-          <i class="fas fa-file-alt me-1"></i> Generar Guía
+        <button class="btn btn-success shadow-sm" onclick="enviarAGuia()">
+          <i class="fas fa-plus-circle me-1"></i> Generar Guía
         </button>
       </div>
       <div class="input-group input-group-sm mt-2" style="width: 280px;">
@@ -53,6 +53,7 @@ $proformas = $controller->listar();
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light text-center align-middle">
                 <tr>
+                  <th><input type="checkbox" id="checkAll"></th>
                   <th>Nº Proforma</th>
                   <th>Cliente</th>
                   <th>RUC / DNI</th>
@@ -66,7 +67,7 @@ $proformas = $controller->listar();
                 <?php if (!empty($proformas)): ?>
                   <?php foreach ($proformas as $proforma): ?>
                     <tr>
-                      
+                      <td><input type="checkbox" class="checkItem" value="<?php echo $proforma['id']; ?>"></td>
                       <td><strong><?php echo htmlspecialchars($proforma['codigo']); ?></strong></td>
                       <td><?php echo htmlspecialchars($proforma['cliente']); ?></td>
                       <td><?php echo htmlspecialchars($proforma['dni_ruc']); ?></td>
@@ -89,7 +90,7 @@ $proformas = $controller->listar();
                             class="btn btn-sm btn-outline-danger" title="Descargar PDF" target="_blank">
                             <i class="fas fa-file-pdf"></i>
                           </a>
-                          <!-------<a href="<?php /*echo APP_URL . 'controllers/proformasController.php?action=generar2' */?>"
+                          <!-------<a href="<?php /*echo APP_URL . 'controllers/proformasController.php?action=generar2' */ ?>"
                             class="btn btn-sm btn-outline-primary" title="Descargar PDF" target="_blank">
                             <i class="fas fa-file-pdf"></i>
                           </a>
@@ -124,4 +125,37 @@ $proformas = $controller->listar();
   </section>
 </div>
 <script>
+  document.getElementById('checkAll').addEventListener('change', function() {
+    document.querySelectorAll('.checkItem').forEach(cb => {
+      cb.checked = this.checked;
+    });
+  });
+</script>
+<script>
+  document.addEventListener("change", function(e) {
+    if (e.target.classList.contains("checkItem")) {
+      console.log("Marcaste el ID:", e.target.value);
+    }
+  });
+</script>
+<script>
+  function enviarAGuia() {
+    let ids = [];
+
+    // recoger los IDs seleccionados
+    document.querySelectorAll(".checkItem:checked").forEach(cb => {
+      ids.push(cb.value);
+    });
+
+    if (ids.length === 0) {
+      alert("Debe seleccionar al menos una proforma para generar la guía.");
+      return;
+    }
+
+    // Construir la URL hacia la vista grecepcion/agregar
+    let url = "<?php echo APP_URL; ?>?views=grecepcion/agregar&ids=" + ids.join(",");
+
+    // Redirigir
+    window.location.href = url;
+  }
 </script>

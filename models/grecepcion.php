@@ -13,7 +13,7 @@ class grecepcion
         $db = new Database();
         $this->conn = $db->connect();
     }
-    public function guardar($idproforma, $idpersonal, $idcliente, $costototal, $codigo, $estado)
+    public function guardar($idproforma, $idtrabajador, $idcliente, $costototal, $codigo, $estado)
     {
         try {
             // Verificar conexión
@@ -40,8 +40,8 @@ class grecepcion
             $codigo = "GR-2025-" . $nuevoNumero;
 
             // Validar que los valores no sean null antes de insertar
-            if (is_null($idproforma) || is_null($idpersonal) || is_null($idcliente)) {
-                $errorMsg = "Valores nulos - idproforma: $idproforma, idpersonal: $idpersonal, idcliente: $idcliente";
+            if (is_null($idproforma) || is_null($idtrabajador) || is_null($idcliente)) {
+                $errorMsg = "Valores nulos - idproforma: $idproforma, idpersonal: $idtrabajador, idcliente: $idcliente";
                 error_log("Error: " . $errorMsg);
                 throw new Exception($errorMsg);
             }
@@ -55,7 +55,7 @@ class grecepcion
             }
 
             $stmt->bindParam(':idproforma', $idproforma, PDO::PARAM_INT);
-            $stmt->bindParam(':idtrabajador', $idpersonal, PDO::PARAM_INT);
+            $stmt->bindParam(':idtrabajador', $idtrabajador, PDO::PARAM_INT);
             $stmt->bindParam(':idcliente', $idcliente, PDO::PARAM_INT);
             $stmt->bindParam(':codigo', $codigo, PDO::PARAM_STR);
             $stmt->bindParam(':estado', $estado, PDO::PARAM_INT);
@@ -88,7 +88,7 @@ class grecepcion
     }
 
 
-    public function guardarDetalleGrecepcion($idrecepcion, $idtipo, $servicio, $codigo, $fecha_ingreso, $estado)
+    public function guardarDetalleGrecepcion($idrecepcion, $idtipo, $idempleados, $servicio, $codigo, $fecha_ingreso, $estado)
     {
         try {
             // Si no viene fecha del formulario, usar la fecha actual
@@ -102,10 +102,11 @@ class grecepcion
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':idgrecepcion', $idrecepcion, PDO::PARAM_INT);
             $stmt->bindParam(':idtipo', $idtipo, PDO::PARAM_INT);
+            $stmt->bindParam(':idempleados', $idempleados, PDO::PARAM_INT);
             $stmt->bindParam(':descripcion', $servicio, PDO::PARAM_STR);
             $stmt->bindParam(':codingr', $codigo, PDO::PARAM_STR);
             $stmt->bindParam(':feching', $fecha_ingreso, PDO::PARAM_STR);
-            $stmt->bindParam(':estado', $estado, PDO::PARAM_INT);
+            $stmt->bindParam(':estado', $estado, PDO::PARAM_STR);;
 
             if (!$stmt->execute()) {
                 $errorInfo = $stmt->errorInfo();

@@ -134,6 +134,7 @@ class proformas
         // ✅ Cabecera: ya no unimos con area, solo cliente
         $sqlCabecera = "SELECT 
                             p.id,
+                            p.idcliente,
                             p.codigo,
                             p.fecha,
                             p.precio AS total,

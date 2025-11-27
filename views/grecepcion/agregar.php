@@ -65,14 +65,16 @@ if (!empty($ids)) {
                                                 <label for="idproforma"><strong>Nº Proforma <span style="color: red;">*</span></strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <input type="text" id="codigo" placeholder="" value="<?php echo $proforma['codigo'] ?>" autocomplete="off" style="width: 100%; padding: 8px; border: 1px solid #ccc;">
+                                                <input type="hidden" name="idproforma" value="<?php echo $proforma['id']; ?>">
+                                                <input type="text" id="codigo" placeholder="" value="<?php echo $proforma['codigo'] ?>" readonly autocomplete="off" style="width: 100%; padding: 8px; border: 1px solid #ccc;">
                                             </td>
                                             <!-- CLIENTE -->
                                             <td width="20%" align="right" valign="top" style="padding-right: 15px;">
                                                 <label for="idcliente"><strong>Cliente <span style="color: red;">*</span></strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <input list="listaClientes" name="idcliente" id="idcliente" value="<?php echo $proforma['nombres'] ?>" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
+                                                <input name="idcliente" id="cliente_nombre" value="<?php echo $proforma['nombres'] ?>" readonly style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
+                                                <input type="hidden" name="idcliente" value="<?php echo $proforma['idcliente']; ?>">
                                             </td>
                                         </tr>
 
@@ -97,7 +99,7 @@ if (!empty($ids)) {
                                                 <label for="costo_total"><strong>Costo Total</strong></label>
                                             </td>
                                             <td width="30%" valign="top">
-                                                <input type="text" name="costo_total" id="costo_total" style="width: 100%; padding: 8px; border: 1px solid #ccc; text-align: right;" placeholder="0.00">
+                                                <input type="text" name="costo_total" id="costototal" style="width: 100%; padding: 8px; border: 1px solid #ccc; text-align: right;" placeholder="0.00">
                                             </td>
                                         </tr>
 
@@ -128,10 +130,10 @@ if (!empty($ids)) {
                                                                         <input type="text" name="servicio[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Descripción del servicio" required>
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                                                                        <input type="text" name="codigo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
+                                                                        <input type="text" name="codigo_det[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                                                                        <input type="text" name="estado[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
+                                                                        <input type="text" name="estado_det[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
                                                                     </td>
                                                                     <td style="padding: 5px; border: 1px solid #dee2e6;">
                                                                         <input type="date" name="fecha_ingreso[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
@@ -196,6 +198,12 @@ if (!empty($ids)) {
         </table>
     </section>
 </div>
+<?php
+$opcionesTipos = "";
+foreach ($tipos as $tipo) {
+    $opcionesTipos .= '<option value="' . $tipo['id'] . '">' . $tipo['tipos'] . '</option>';
+}
+?>
 <script>
     document.getElementById('add-servicio').addEventListener('click', function() {
         const firstRow = document.getElementById('servicios-first-row');
@@ -204,33 +212,29 @@ if (!empty($ids)) {
         const newRow = document.createElement('tr');
         newRow.className = 'servicio-row';
         newRow.innerHTML = `
-            <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="text" name="servicio[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Descripción del servicio" required>
-            </td>
-            <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="text" name="codigo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
-            </td>
-            <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="text" name="estado[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
-            </td>
-            <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <input type="date" name="fecha_ingreso[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
-            </td>
-            <td style="padding: 5px; border: 1px solid #dee2e6;">
-                <select name="idtipo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
-                    <?php foreach ($tipos as $tipo): ?>
-                        <option value="<?php echo htmlspecialchars($tipo['id']); ?>">
-                            <?php echo htmlspecialchars($tipo['tipos']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </td>
-            <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">
-                <button type="button" class="remove-servicio" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; cursor: pointer;" title="Eliminar fila">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-        `;
+    <td style="padding: 5px; border: 1px solid #dee2e6;">
+        <input type="text" name="servicio[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Descripción del servicio" required>
+    </td>
+    <td style="padding: 5px; border: 1px solid #dee2e6;">
+        <input type="text" name="codigo_det[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Cod. ingreso">
+    </td>
+    <td style="padding: 5px; border: 1px solid #dee2e6;">
+        <input type="text" name="estado_det[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;" placeholder="Estado">
+    </td>
+    <td style="padding: 5px; border: 1px solid #dee2e6;">
+        <input type="date" name="fecha_ingreso[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
+    </td>
+    <td style="padding: 5px; border: 1px solid #dee2e6;">
+        <select name="idtipo[]" style="width: 100%; padding: 5px; border: 1px solid #ccc;">
+            <?php echo $opcionesTipos; ?>
+        </select>
+    </td>
+    <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">
+        <button type="button" class="remove-servicio" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; cursor: pointer;" title="Eliminar fila">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </td>
+`;
 
         // Encontrar la última fila de servicio antes de la fila de botones
         const allRows = parentTable.querySelectorAll('.servicio-row');

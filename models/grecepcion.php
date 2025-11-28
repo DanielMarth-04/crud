@@ -88,36 +88,92 @@ class grecepcion
     }
 
 
-    public function guardarDetalleGrecepcion($idrecepcion, $idtipo, $idempleados, $servicio, $codigo, $fecha_ingreso, $estado)
+    public function guardarDetalleGrecepcion($idGrecepcion, $idtipo, $descripcion, $codingr, $feching, $estado)
     {
-        try {
-            // Si no viene fecha del formulario, usar la fecha actual
-            if (empty($fecha_ingreso)) {
-                date_default_timezone_set('America/Lima');
-                $fecha_ingreso = date('Y-m-d H:i:s');
+        date_default_timezone_set('America/Lima');
+        // Si el usuario envió solo la fecha
+        if (!empty($feching)) {
+            // Si viene sin hora → le agregamos la hora actual
+            if (strlen($feching) == 10) { // Formato YYYY-MM-DD
+                $feching = $feching . ' ' . date('H:i:s');
             }
-
-            $sql = "INSERT INTO detgrec (idgrecepcion, idtipo, descripcion, codingr, feching, estado)
-        VALUES (:idgrecepcion, :idtipo, :descripcion, :codingr, :feching, :estado)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':idgrecepcion', $idrecepcion, PDO::PARAM_INT);
-            $stmt->bindParam(':idtipo', $idtipo, PDO::PARAM_INT);
-            $stmt->bindParam(':idempleados', $idempleados, PDO::PARAM_INT);
-            $stmt->bindParam(':descripcion', $servicio, PDO::PARAM_STR);
-            $stmt->bindParam(':codingr', $codigo, PDO::PARAM_STR);
-            $stmt->bindParam(':feching', $fecha_ingreso, PDO::PARAM_STR);
-            $stmt->bindParam(':estado', $estado, PDO::PARAM_STR);;
-
-            if (!$stmt->execute()) {
-                $errorInfo = $stmt->errorInfo();
-                error_log("Error al ejecutar INSERT detalle: " . print_r($errorInfo, true));
-                return false;
-            }
-            return true;
-        } catch (PDOException $e) {
-            error_log("Error al guardar detalle de guía de recepción: " . $e->getMessage());
-            error_log("Stack trace: " . $e->getTraceAsString());
-            return false;
+        } else {
+            // Si no enviaron nada → fecha y hora actual
+            $feching = date('Y-m-d H:i:s');
         }
+        $sql = "INSERT INTO detgrec (idgrecepcion, idtipo, descripcion, codingr, feching, estado)
+                VALUES (:idgrecepcion, :idtipo, :descripcion, :codingr, :feching, :estado)";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':idgrecepcion', $idGrecepcion, PDO::PARAM_INT);
+        $stmt->bindParam(':idtipo', $idtipo, PDO::PARAM_INT);
+        $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
+        $stmt->bindParam(':codingr', $codingr, PDO::PARAM_STR);
+        $stmt->bindParam(':feching', $feching, PDO::PARAM_STR);
+        $stmt->bindParam(':estado', $estado, PDO::PARAM_STR);
+
+        return $stmt->execute();
+    }
+    public function obtenerGuias()
+    {
+        $sql = "SELECT 
+                g.id,
+                g.codigo,
+                p.codigo as codpro,
+                c.nombres,
+                g.estado
+                From
+                grecepcion g
+                INNER JOIN clientes c ON g.idcliente = c.id  
+                INNER JOIN proforma p ON g.idproforma = p.id
+                GROUP BY g.id
+                ORDER BY g.id DESC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerPorId($id)
+    {
+        // ✅ Cabecera: ya no unimos con area, solo cliente
+        $sqlCabecera = "SELECT 
+                            g.id,
+                            g.idcliente,
+                            g.codigo,
+                            g.costotal,
+                            p.codigo AS codguia,
+                            c.DniRuc,
+                            c.nombres,
+                            c.contacto,
+                            c.direccion,
+                            c.telefono,
+                            c.correo
+                        FROM grecepcion g
+                        INNER JOIN clientes c ON g.idcliente = c.id
+                        INNER JOIN proforma p ON g.idproforma = p.id
+                        WHERE g.id = ?";
+        $stmt = $this->conn->prepare($sqlCabecera);
+        $stmt->execute([$id]);
+        $cabecera = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // ✅ Detalle: el área se obtiene desde detalleproforma
+        $sqlDetalle = "SELECT 
+                            d.descripcion,
+                            t.tipo,
+                            d.codingr,
+                            d.estado,
+                            d.feching
+                        FROM detgrec d
+                        INNER JOIN tipo t ON d.idtipo = t.id      
+                        WHERE d.idgrecepcion = ?";
+        $stmt2 = $this->conn->prepare($sqlDetalle);
+        $stmt2->execute([$id]);
+        $detalle = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'cabecera' => $cabecera,
+            'detalle' => $detalle
+        ];
     }
 }

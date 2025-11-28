@@ -1,9 +1,14 @@
 <?php
 require_once __DIR__ . "/../../config/app.php";
-require_once __DIR__ . "/../../controllers/proformasController.php";
+require_once __DIR__ . "/../../controllers/grecepcionController.php";
 require_once __DIR__ . "/../../views/inc/header.php";
 require_once __DIR__ . "/../../views/inc/sidebar.php";
-?><div class="content-wrapper">
+$controller = new grecepcionController();
+$guias = $controller->listar();
+?>
+
+
+<div class="content-wrapper">
 
 <!-- Encabezado -->
 <section class="content-header">
@@ -43,24 +48,19 @@ require_once __DIR__ . "/../../views/inc/sidebar.php";
                 <th>Nº De Guia</th>
                 <th>Nº De Proforma</th>
                 <th>Cliente</th>
-                <th>Servicio</th>
-                <th>Fecha</th>
-                <th class="text-center">Estado</th>
                 <th class="text-center" style="width: 120px;">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <?php if (!empty($proformas)): ?>
-                <?php foreach ($proformas as $proforma): ?>
+              <?php if (!empty($guias)): ?>
+                <?php foreach ($guias as $guia): ?>
                   <tr>
-                    <td><strong><?php echo htmlspecialchars($proforma['codigo']); ?></strong></td>
-                    <td><?php echo htmlspecialchars($proforma['cliente']); ?></td>
-                    <td><?php echo htmlspecialchars($proforma['dni_ruc']); ?></td>
-                    <td><?php echo htmlspecialchars($proforma['servicios']); ?></td>
-                    <td><?php echo htmlspecialchars($proforma['fecha']); ?></td>
+                    <td><strong><?php echo htmlspecialchars($guia['codigo']); ?></strong></td>
+                    <td><?php echo htmlspecialchars($guia['codpro']); ?></td>
+                    <td><?php echo htmlspecialchars($guia['nombres']); ?></td>
 
                     <td class="text-center">
-                      <?php if ($proforma['estado'] == 1): ?>
+                      <?php if ($guia['estado'] == 1): ?>
                         <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Activo</span>
                       <?php else: ?>
                         <span class="badge bg-secondary"><i class="fas fa-ban me-1"></i>Inactivo</span>
@@ -72,13 +72,13 @@ require_once __DIR__ . "/../../views/inc/sidebar.php";
                         <i class="fas fa-edit"></i>
                       </a>
                       <a
-                        href="<?php echo APP_URL . 'controllers/proformasController.php?action=generar&id=' . urlencode($proforma['id']); ?>"
+                        href="<?php echo APP_URL . 'controllers/grecepcionController.php?action=generar&id=' . urlencode($guia['id']); ?>"
                         class="btn btn-sm btn-outline-danger"
                         title="Descargar PDF"
                         target="_blank">
                         <i class="fas fa-file-pdf"></i>
                       </a>
-                      <a href="<?php echo APP_URL; ?>controllers/serviciosController.php?action=eliminar&id=<?php /*echo $servicio['id']; */ ?>"
+                      <a href="<?php echo APP_URL; ?>controllers/serviciosController.php?action=eliminar&id=<?php echo $servicio['id'];  ?>"
                         class="btn btn-sm btn-outline-danger" title="Eliminar" data-bs-toggle="tooltip">
                         <i class="fas fa-trash-alt"></i>
                       </a>
@@ -100,7 +100,7 @@ require_once __DIR__ . "/../../views/inc/sidebar.php";
       <!-- Pie de tabla -->
       <div class="card-footer bg-white text-end">
         <small class="text-muted">
-          Total: <strong><?php echo count($proformas); ?></strong> Proformas registradas
+          Total: <strong><?php echo count($guia); ?></strong> Guias registradas
         </small>
       </div>
     </div>

@@ -87,33 +87,73 @@ class grecepcion
         }
     }
 
-
     public function guardarDetalleGrecepcion($idGrecepcion, $idtipo, $descripcion, $codingr, $feching, $estado)
     {
-        date_default_timezone_set('America/Lima');
-        // Si el usuario envió solo la fecha
-        if (!empty($feching)) {
-            // Si viene sin hora → le agregamos la hora actual
-            if (strlen($feching) == 10) { // Formato YYYY-MM-DD
-                $feching = $feching . ' ' . date('H:i:s');
+        try {
+            date_default_timezone_set('America/Lima');
+    
+            // Iniciar transacción
+            $this->conn->beginTransaction();
+    
+            // Normalizar fecha
+            if (!empty($feching) && strlen($feching) == 10) {
+                $feching .= ' ' . date('H:i:s');
+            } elseif (empty($feching)) {
+                $feching = date('Y-m-d H:i:s');
             }
-        } else {
-            // Si no enviaron nada → fecha y hora actual
-            $feching = date('Y-m-d H:i:s');
+    
+            // 1️⃣ Crear expediente
+            $codigoExp = "EXP-" . date("Y") . "-" . str_pad($codingr, 5, "0", STR_PAD_LEFT);
+    
+            $sqlExp = "INSERT INTO expcal (idtipo, idgrecepcion, codigo, fcreacion)
+                       VALUES (:idtipo, :idgrecepcion, :codigo, NOW())";
+    
+            $stmtExp = $this->conn->prepare($sqlExp);
+            $stmtExp->execute([
+                ':idtipo'       => $idtipo,
+                ':idgrecepcion' => $idGrecepcion,
+                ':codigo'       => $codigoExp
+            ]);
+    
+            // Obtener ID del expediente creado
+            $idExp = $this->conn->lastInsertId();
+    
+            if (!$idExp) {
+                throw new Exception("No se pudo obtener idExp.");
+            }
+    
+            // 2️⃣ Guardar el detalle relacionado al expediente
+            $sql = "INSERT INTO detgrec 
+                    (idgrecepcion, idtipo, descripcion, codingr, feching, estado, idexp)
+                    VALUES 
+                    (:idgrecepcion, :idtipo, :descripcion, :codingr, :feching, :estado, :idexp)";
+    
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ':idgrecepcion' => $idGrecepcion,
+                ':idtipo'       => $idtipo,
+                ':descripcion'  => $descripcion,
+                ':codingr'      => $codingr,
+                ':feching'      => $feching,
+                ':estado'       => $estado,
+                ':idexp'        => $idExp,
+            ]);
+    
+            // Confirmar cambios
+            $this->conn->commit();
+    
+            return true;
+    
+        } catch (Exception $e) {
+            // Si algo falla, revertir
+            $this->conn->rollBack();
+            throw $e;
         }
-        $sql = "INSERT INTO detgrec (idgrecepcion, idtipo, descripcion, codingr, feching, estado)
-                VALUES (:idgrecepcion, :idtipo, :descripcion, :codingr, :feching, :estado)";
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':idgrecepcion', $idGrecepcion, PDO::PARAM_INT);
-        $stmt->bindParam(':idtipo', $idtipo, PDO::PARAM_INT);
-        $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
-        $stmt->bindParam(':codingr', $codingr, PDO::PARAM_STR);
-        $stmt->bindParam(':feching', $feching, PDO::PARAM_STR);
-        $stmt->bindParam(':estado', $estado, PDO::PARAM_STR);
-
-        return $stmt->execute();
     }
+    
+    
+    
+
     public function obtenerGuias()
     {
         $sql = "SELECT 

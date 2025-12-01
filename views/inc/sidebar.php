@@ -30,24 +30,21 @@
         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
         <li class="nav-item">
-          <a href="<?php echo APP_URL; ?>views/clientes/index.php" class="nav-link has-treeview">
+          <a href="<?php echo APP_URL; ?>views/clientes/index.php" class="nav-link">
             <i class="nav-icon fas fa-users"></i>
-            <p>
-              Clientes
-              <i class=""></i>
-            </p>
+            <p>Clientes</p>
           </a>
+        </li>
 
         <li class="nav-item">
           <a href="<?php echo APP_URL; ?>views/servicios/index.php" class="nav-link">
             <i class="nav-icon fas fa-th"></i>
-            <p>
-              servicios
-            </p>
+            <p>servicios</p>
           </a>
         </li>
-        <li class="nav-item has-treeview">
-          <a href="#" class="nav-link">
+
+        <li class="nav-item has-treeview menu-open">
+          <a href="#" class="nav-link active">
             <i class="nav-icon fas fa-folder-open"></i>
             <p>
               Documentos
@@ -55,28 +52,29 @@
             </p>
           </a>
 
-          <ul class="nav nav-treeview">
+          <ul class="nav nav-treeview" style="display: block;">
             <li class="nav-item">
               <a href="<?php echo APP_URL; ?>views/proformas/index.php" class="nav-link">
-                <i class="far fa-file-alt nav-icon"></i>
+                <i class="fas fa-file-invoice nav-icon"></i>
                 <p>Proformas</p>
               </a>
             </li>
+
             <li class="nav-item">
               <a href="<?php echo APP_URL; ?>views/grecepcion/index.php" class="nav-link">
                 <i class="fas fa-file-signature nav-icon"></i>
                 <p>Guías de Recepción</p>
               </a>
             </li>
+
             <li class="nav-item">
               <a href="<?php echo APP_URL; ?>views/certificados/index.php" class="nav-link">
-                <i class="fas fa-certificate nav-icon"></i>
+                <i class="fas fa-award nav-icon"></i>
                 <p>Certificados</p>
               </a>
             </li>
           </ul>
         </li>
-
 
         <li class="nav-item">
           <a href="#" class="nav-link">

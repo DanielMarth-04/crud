@@ -16,6 +16,7 @@ $tipos = $controller->listar(); // array de clientes
 <?php
 require_once __DIR__ . "/../../models/proformas.php";
 
+
 $ids = isset($_GET['ids']) ? explode(",", $_GET['ids']) : [];
 
 $datosProformas = [];

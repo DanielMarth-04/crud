@@ -143,6 +143,7 @@ class grecepcion
                             g.codigo,
                             g.costotal,
                             p.codigo AS codguia,
+                            e.nombres AS nomemple,
                             c.DniRuc,
                             c.nombres,
                             c.contacto,
@@ -152,6 +153,7 @@ class grecepcion
                         FROM grecepcion g
                         INNER JOIN clientes c ON g.idcliente = c.id
                         INNER JOIN proforma p ON g.idproforma = p.id
+                        INNER JOIN empleados e ON g.idtrabajador = e.id
                         WHERE g.id = ?";
         $stmt = $this->conn->prepare($sqlCabecera);
         $stmt->execute([$id]);

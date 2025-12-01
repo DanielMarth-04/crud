@@ -63,9 +63,15 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="<?php echo APP_URL; ?>views/grecepcion/index.php"  class="nav-link">
+              <a href="<?php echo APP_URL; ?>views/grecepcion/index.php" class="nav-link">
                 <i class="fas fa-file-signature nav-icon"></i>
                 <p>Guías de Recepción</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="<?php echo APP_URL; ?>views/certificados/index.php" class="nav-link">
+                <i class="fas fa-certificate nav-icon"></i>
+                <p>Certificados</p>
               </a>
             </li>
           </ul>

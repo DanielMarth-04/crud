@@ -68,9 +68,9 @@
             </li>
 
             <li class="nav-item">
-              <a href="<?php echo APP_URL; ?>views/certificados/index.php" class="nav-link">
-                <i class="fas fa-award nav-icon"></i>
-                <p>Certificados</p>
+              <a href="<?php echo APP_URL; ?>views/Otrabajo/index.php" class="nav-link">
+                <i class="fas fa-clipboard-list nav-icon"></i>
+                <p>O.Trabajo</p>
               </a>
             </li>
           </ul>

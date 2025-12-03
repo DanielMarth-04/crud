@@ -168,6 +168,11 @@ class grecepcionController
         $model = new grecepcion();
         return $model->obtenerGuias();
     }
+    public function obtenerguias($id)
+    {
+        $model = new grecepcion();
+        return $model->obtenerPorId($id);
+    }
     public function generar($id)
     {
         ob_clean();
@@ -303,36 +308,36 @@ class grecepcionController
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Multicell(140, 5, 'El item ha sido verificado en sus condiciones de operacion aparente.
 Cualquier defecto se comunicara inmediatamente al cliente.
-Una vez ingresado se procedera con la calibracion si el item cumple con los requisitos.', 1, 0,false, 'C');
+Una vez ingresado se procedera con la calibracion si el item cumple con los requisitos.', 1, 0, false, 'C');
 
-$pdf->SetXY(20, 250);
-$pdf->Line(20, 250, 80, 250); // (x1, y1, x2, y2)
+        $pdf->SetXY(20, 250);
+        $pdf->Line(20, 250, 80, 250); // (x1, y1, x2, y2)
 
-$pdf->SetXY(30, 245);  // ← Ajusta X y Y para que quede alineado
-$pdf->SetFont('Arial', '', 10);
-$pdf->Cell(40, 5, $pdf->safe_text($cabecera['nomemple'] ?? ''), 0, 0, 'L');
+        $pdf->SetXY(30, 245);  // ← Ajusta X y Y para que quede alineado
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(40, 5, $pdf->safe_text($cabecera['nomemple'] ?? ''), 0, 0, 'L');
 
-$pdf->SetXY(30, 252);
-$pdf->SetFont('Arial','B',8);
-$pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'Responsable de recepción'), 0, 0, 'C', false);
+        $pdf->SetXY(30, 252);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'Responsable de recepción'), 0, 0, 'C', false);
 
-$pdf->SetXY(30, 260);
-$pdf->SetFont('Arial','B',8);
-$pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'S&H INGENIEROS S.R.L.'), 0, 0, 'C', false);
+        $pdf->SetXY(30, 260);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'S&H INGENIEROS S.R.L.'), 0, 0, 'C', false);
 
-// Línea de firma (de 140 a 200)
-$pdf->Line(140, 250, 200, 250);
+        // Línea de firma (de 140 a 200)
+        $pdf->Line(140, 250, 200, 250);
 
-// Texto centrado debajo de la línea
-$pdf->SetXY(140, 252);
-$pdf->SetFont('Arial', 'B', 8);
-$pdf->Cell(60, 5, iconv('UTF-8', 'ISO-8859-1', 'Responsable del Cliente'), 0, 0, 'C');
-$pdf->SetXY(140, 260);
-$pdf->SetFont('Arial','B',8);
-$pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'Nombre:'), 0, 0, 'C', false);
-$pdf->SetXY(140, 275);
-$pdf->SetFont('Arial','B',8);
-$pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'DNI:'), 0, 0, 'C', false);
+        // Texto centrado debajo de la línea
+        $pdf->SetXY(140, 252);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(60, 5, iconv('UTF-8', 'ISO-8859-1', 'Responsable del Cliente'), 0, 0, 'C');
+        $pdf->SetXY(140, 260);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'Nombre:'), 0, 0, 'C', false);
+        $pdf->SetXY(140, 275);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(30, 5, iconv('UTF-8', 'ISO-8859-1', 'DNI:'), 0, 0, 'C', false);
 
         $pdf->Output('I', 'Fecha de Ingreso');
     }

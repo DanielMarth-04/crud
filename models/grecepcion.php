@@ -182,7 +182,7 @@ class grecepcion
                             g.idcliente,
                             g.codigo,
                             g.costotal,
-                            p.codigo AS codguia,
+                            p.codigo AS codpro,
                             e.nombres AS nomemple,
                             c.DniRuc,
                             c.nombres,

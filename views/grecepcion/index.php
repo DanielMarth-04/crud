@@ -5,106 +5,152 @@ require_once __DIR__ . "/../../views/inc/header.php";
 require_once __DIR__ . "/../../views/inc/sidebar.php";
 $controller = new grecepcionController();
 $guias = $controller->listar();
+
+
 ?>
 
 
 <div class="content-wrapper">
 
-<!-- Encabezado -->
-<section class="content-header">
-  <div class="container-fluid d-flex justify-content-between align-items-center">
-    <h1 class="m-0 text-dark">
-    <i class="fas fa-file-import text-primary me-2"></i> Gestión de Guias de Recepción
-    </h1>
-    <a href="<?php echo APP_URL; ?>?views=grecepcion/agregar" class="btn btn-primary shadow-sm">
-      <i class="fas fa-plus-circle me-1"></i> Nueva Guia
-    </a>
-  </div>
-</section>
+  <!-- Encabezado -->
+  <section class="content-header">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <h1 class="m-0 text-dark">
+        <i class="fas fa-file-import text-primary me-2"></i> Gestión de Guias de Recepción
+      </h1>
+      <a href="<?php echo APP_URL; ?>?views=grecepcion/agregar" class="btn btn-primary shadow-sm">
+        <i class="fas fa-plus-circle me-1"></i> Nueva Guia
+      </a>
+      <button class="btn btn-success shadow-sm" onclick="enviarAOtrabajo()">
+        <i class="fas fa-plus-circle me-1"></i> Generar Orden
+      </button>
+    </div>
+  </section>
 
-<!-- Contenido principal -->
-<section class="content">
-  <div class="container-fluid">
+  <!-- Contenido principal -->
+  <section class="content">
+    <div class="container-fluid">
 
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-        <h3 class="card-title text-secondary mb-0">
-          <i class="fas fa-list text-info me-1"></i> Lista de Guias de Recepcion
-        </h3>
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h3 class="card-title text-secondary mb-0">
+            <i class="fas fa-list text-info me-1"></i> Lista de Guias de Recepcion
+          </h3>
 
-        <!-- Buscador -->
-        <div class="input-group input-group-sm" style="width: 260px;">
-          <input type="text" class="form-control" placeholder="Buscar Guias..." id="buscarProformas">
+          <!-- Buscador -->
+          <div class="input-group input-group-sm" style="width: 260px;">
+            <input type="text" class="form-control" placeholder="Buscar Guias..." id="buscarProformas">
+          </div>
         </div>
-      </div>
 
-      <!-- Tabla -->
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover table-striped align-middle mb-0">
-            <thead class="table-light">
-              <tr>
+        <!-- Tabla -->
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th><input type="checkbox" id="checkgrecepcion"></th>
+                  <th>Nº De Guia</th>
+                  <th>Nº De Proforma</th>
+                  <th>Cliente</th>
+                  <th class="text-center" style="width: 120px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php if (!empty($guias)): ?>
+                  <?php foreach ($guias as $guia): ?>
+                    <tr>
+                      <td><input type="checkbox" class="checkItem" value="<?php echo $guia['id'];  ?>"></td>
+                      <td><strong><?php echo htmlspecialchars($guia['codigo']); ?></strong></td>
+                      <td><?php echo htmlspecialchars($guia['codpro']); ?></td>
+                      <td><?php echo htmlspecialchars($guia['nombres']); ?></td>
 
-                <th>Nº De Guia</th>
-                <th>Nº De Proforma</th>
-                <th>Cliente</th>
-                <th class="text-center" style="width: 120px;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php if (!empty($guias)): ?>
-                <?php foreach ($guias as $guia): ?>
+                      <td class="text-center">
+                        <?php if ($guia['estado'] == 1): ?>
+                          <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Activo</span>
+                        <?php else: ?>
+                          <span class="badge bg-secondary"><i class="fas fa-ban me-1"></i>Inactivo</span>
+                        <?php endif; ?>
+                      </td>
+                      <td class="text-center">
+                        <a href="<?php echo APP_URL; ?>?views=servicios/editar&id=<?php echo $servicio['id']; ?>"
+                          class="btn btn-sm btn-outline-primary" title="Editar" data-bs-toggle="tooltip">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <a
+                          href="<?php echo APP_URL . 'controllers/grecepcionController.php?action=generar&id=' . urlencode($guia['id']); ?>"
+                          class="btn btn-sm btn-outline-danger"
+                          title="Descargar PDF"
+                          target="_blank">
+                          <i class="fas fa-file-pdf"></i>
+                        </a>
+                        <a href="<?php echo APP_URL; ?>controllers/serviciosController.php?action=eliminar&id=<?php echo $servicio['id'];  ?>"
+                          class="btn btn-sm btn-outline-danger" title="Eliminar" data-bs-toggle="tooltip">
+                          <i class="fas fa-trash-alt"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                <?php else: ?>
                   <tr>
-                    <td><strong><?php echo htmlspecialchars($guia['codigo']); ?></strong></td>
-                    <td><?php echo htmlspecialchars($guia['codpro']); ?></td>
-                    <td><?php echo htmlspecialchars($guia['nombres']); ?></td>
-
-                    <td class="text-center">
-                      <?php if ($guia['estado'] == 1): ?>
-                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Activo</span>
-                      <?php else: ?>
-                        <span class="badge bg-secondary"><i class="fas fa-ban me-1"></i>Inactivo</span>
-                      <?php endif; ?>
-                    </td>
-                    <td class="text-center">
-                      <a href="<?php echo APP_URL; ?>?views=servicios/editar&id=<?php echo $servicio['id'];?>"
-                        class="btn btn-sm btn-outline-primary" title="Editar" data-bs-toggle="tooltip">
-                        <i class="fas fa-edit"></i>
-                      </a>
-                      <a
-                        href="<?php echo APP_URL . 'controllers/grecepcionController.php?action=generar&id=' . urlencode($guia['id']); ?>"
-                        class="btn btn-sm btn-outline-danger"
-                        title="Descargar PDF"
-                        target="_blank">
-                        <i class="fas fa-file-pdf"></i>
-                      </a>
-                      <a href="<?php echo APP_URL; ?>controllers/serviciosController.php?action=eliminar&id=<?php echo $servicio['id'];  ?>"
-                        class="btn btn-sm btn-outline-danger" title="Eliminar" data-bs-toggle="tooltip">
-                        <i class="fas fa-trash-alt"></i>
-                      </a>
+                    <td colspan="6" class="text-center text-muted py-4">
+                      <i class="fas fa-info-circle me-2"></i>No hay Guias Registradas.
                     </td>
                   </tr>
-                <?php endforeach; ?>
-              <?php else: ?>
-                <tr>
-                  <td colspan="6" class="text-center text-muted py-4">
-                    <i class="fas fa-info-circle me-2"></i>No hay Guias Registradas.
-                  </td>
-                </tr>
-              <?php endif; ?>
-            </tbody>
-          </table>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pie de tabla -->
+        <div class="card-footer bg-white text-end">
+          <small class="text-muted">
+            Total: <strong><?php echo count($guias); ?></strong> Guias registradas
+          </small>
         </div>
       </div>
 
-      <!-- Pie de tabla -->
-      <div class="card-footer bg-white text-end">
-        <small class="text-muted">
-          Total: <strong><?php echo count($guia); ?></strong> Guias registradas
-        </small>
-      </div>
     </div>
-
-  </div>
-</section>
+  </section>
 </div>
+<script>
+  document.getElementById('checkgrecepcion').addEventListener('change', function() {
+    document.querySelectorAll('.checkItem').forEach(cb => {
+      cb.checked = this.checked;
+    });
+  });
+</script>
+<script>
+  document.addEventListener("change", function(e) {
+    if (e.target.classList.contains("checkItem")) {
+      console.log("Marcaste el ID:", e.target.value);
+    }
+  });
+</script>
+<script>
+function enviarAOtrabajo() {
+
+// Obtiene todos los checkboxes marcados
+let seleccionados = document.querySelectorAll(".checkItem:checked");
+
+// Ninguno marcado
+if (seleccionados.length === 0) {
+    alert("Debe seleccionar una guía.");
+    return;
+}
+
+// Más de 1 marcado
+if (seleccionados.length > 1) {
+    alert("Solo puede seleccionar una guía.");
+    return;
+}
+
+// Tomar el único ID seleccionado
+let id = seleccionados[0].value;
+
+// Redirigir
+let url = "<?php echo APP_URL; ?>?views=otrabajo/agregar&id=" + id;
+window.location.href = url;
+}
+</script>

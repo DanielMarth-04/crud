@@ -183,6 +183,7 @@ class grecepcion
                             g.codigo,
                             g.costotal,
                             p.codigo AS codpro,
+                            p.id AS idproforma,
                             e.nombres AS nomemple,
                             c.DniRuc,
                             c.nombres,

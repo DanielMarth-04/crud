@@ -8,21 +8,11 @@ $grecepcion = new grecepcionController();
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $personal = $trabajadores->obtenerPersonalId($id);
 $guias = $grecepcion->obtenerguias($id);
-// Validar que venga el ID por GET
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    die("ERROR: No se recibió ID de guía.");
-}
-
-$id = $_GET['id'];
-
-// Obtener los datos
 $guia = $grecepcion->obtenerguias($id);
+$tipos = $controller->listar(); 
 
-// Si no se encontró la guía
-if (!$guia) {
-    die("ERROR: No existe la guía con ID: $id");
-}
-$tipos = $controller->listar(); // array de clientes
+$guias = $grecepcion->obtenerguias($id);
+
 
 ?>
 
@@ -51,7 +41,7 @@ $tipos = $controller->listar(); // array de clientes
 
                 <div class="card-body">
 
-                    <form id="form-guia-recepcion" method="POST"
+                    <form id="form-orden-trabajo" method="POST"
                         action="<?php echo APP_URL; ?>controllers/otrabajoController.php?action=guardar">
 
                         <!-- FILA 1 -->
@@ -59,7 +49,8 @@ $tipos = $controller->listar(); // array de clientes
                             <!-- Nº PROFORMA -->
                             <div class="col-md-3">
                                 <label class="form-label fw-bold">Nº Proforma <span class="text-danger">*</span></label>
-                                <input type="hidden" name="idproforma" value="<?php echo $guias['cabecera']['id']; ?>">
+                                <input type="hidden" name="idguia" value="<?php echo $guia['cabecera']['id']; ?>">
+                                <input type="hidden" name="idproforma" value="<?php echo $guia['cabecera']['idproforma']; ?>">
                                 <input type="text" class="form-control" value="<?php echo $guia['cabecera']['codpro']; ?>" readonly>
                             </div>
 
@@ -68,11 +59,11 @@ $tipos = $controller->listar(); // array de clientes
                                 <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control"
                                     value="<?php echo $guia['cabecera']['nombres']; ?>" readonly>
-                                <input type="hidden" name="idcliente">
+                                <input type="hidden" name="idcliente" value="<?php echo $guia['cabecera']['idcliente']; ?>">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-bold">fecha <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control"
+                                <input type="date" name="fecha" class="form-control"
                                     value="">
                             </div>
 
@@ -92,7 +83,7 @@ $tipos = $controller->listar(); // array de clientes
                             <!-- DESCRIPCIÓN -->
                             <div class="col-md-3">
                                 <label class="form-label fw-bold">Descripción</label>
-                                <select class="form-control select2" name="descripcion">
+                                <select class="form-control select2" name="descripcion" id="descripcion">
                                     <option value="">Seleccione descripción…</option>
                                     <option>SERVICIO DE CALIBRACIÓN ACREDITADO POR INACAL - DA</option>
                                     <option>SERVICIO DE CALIBRACIÓN CONFORME A NTP ISO/IEC 17025</option>
@@ -108,7 +99,7 @@ $tipos = $controller->listar(); // array de clientes
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">Método</label>
-                                <select class="form-control select2" name="metodo">
+                                <select class="form-control select2" name="methodo" id="methodo">
                                     <option value="">Seleccione método…</option>
                                     <option>MÉTODO DE COMPARACIÓN DIRECTA, SEGÚN EL PC-026 "PROCEDIMIENTO PARA LA CALIBRACIÓN DE HIGRÓMETROS Y TERMÓMETROS AMBIENTALES" (1era ed., 2019)</option>
                                     <option>MÉTODO DE COMPARACIÓN DIRECTA, SEGÚN EL PC-017 "PROCEDIMIENTO PARA LA CALIBRACIÓN DE TERMÓMETROS DIGITALES" (2da ed., 2012)</option>
@@ -172,7 +163,7 @@ $tipos = $controller->listar(); // array de clientes
 
                 <!-- FOOTER -->
                 <div class="card-footer text-end bg-light">
-                    <button type="submit" form="form-guia-recepcion" class="btn btn-success">
+                    <button type="submit" form="form-orden-trabajo" class="btn btn-success">
                         <i class="fas fa-save"></i> Guardar
                     </button>
 

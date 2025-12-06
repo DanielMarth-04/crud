@@ -102,6 +102,26 @@ class otrabajo
     
         return true;
     }
+    public function obtenerotrabajo()
+    {
+        $sql = "SELECT 
+                o.id,
+                p.codigo as codpro,
+                o.codotr,
+                c.nombres,
+                o.estado,
+                o.fecha
+                From
+                otrabajo o
+                INNER JOIN clientes c ON o.idcliente = c.id  
+                INNER JOIN proforma p ON o.idproforma = p.id
+                GROUP BY o.id
+                ORDER BY o.id DESC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 
     /**

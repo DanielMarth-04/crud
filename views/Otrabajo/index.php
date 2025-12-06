@@ -2,6 +2,10 @@
 require_once __DIR__ . "/../../config/app.php";
 require_once __DIR__ . "/../../views/inc/header.php";
 require_once __DIR__ . "/../../views/inc/sidebar.php";
+
+require_once __DIR__ . "/../../controllers/otrabajoController.php";
+$controller = new otrabajoController();
+$otrabajo = $controller->listar();
 ?>
 
 <div class="content-wrapper">
@@ -42,31 +46,31 @@ require_once __DIR__ . "/../../views/inc/sidebar.php";
               <tr>
 
                 <th>Nº De Orden</th>
-                <th>Nº De Guia</th>
+                <th>Nº De Proforma</th>
                 <th>Cliente</th>
                 <th class="text-center" style="width: 120px;">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <?php if (!empty($guias)): ?>
-                <?php foreach ($guias as $guia): ?>
+              <?php if (!empty($otrabajo)): ?>
+                <?php foreach ($otrabajo as $orden): ?>
                   <tr>
-                    <td><strong><?php echo htmlspecialchars($guia['codigo']); ?></strong></td>
-                    <td><?php echo htmlspecialchars($guia['codpro']); ?></td>
-                    <td><?php echo htmlspecialchars($guia['nombres']); ?></td>
+                    <td><strong><?php echo htmlspecialchars($orden['codotr']); ?></strong></td>
+                    <td><?php echo htmlspecialchars($orden['codpro']); ?></td>
+                    <td><?php echo htmlspecialchars($orden['nombres']); ?></td>
 
                     <td class="text-center">
-                      <?php if ($guia['estado'] == 1): ?>
+                      <?php if ($orden['estado'] == 1): ?>
                         <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Activo</span>
                       <?php else: ?>
                         <span class="badge bg-secondary"><i class="fas fa-ban me-1"></i>Inactivo</span>
                       <?php endif; ?>
                     </td>
                     <td class="text-center">
-                      <a href="<?php echo APP_URL; ?>?views=servicios/editar&id=<?php echo $servicio['id'];?>"
+                      <!--<a href="<?php /*echo APP_URL; ?>?views=servicios/editar&id=<?php/* echo $servicio['id'];?>"
                         class="btn btn-sm btn-outline-primary" title="Editar" data-bs-toggle="tooltip">
                         <i class="fas fa-edit"></i>
-                      </a>
+                      </a>-->
                       <a
                         href="<?php /*echo APP_URL . 'controllers/grecepcionController.php?action=generar&id=' . urlencode($guia['id']); */?>"
                         class="btn btn-sm btn-outline-danger"
@@ -74,17 +78,17 @@ require_once __DIR__ . "/../../views/inc/sidebar.php";
                         target="_blank">
                         <i class="fas fa-file-pdf"></i>
                       </a>
-                      <a href="<?php echo APP_URL; ?>controllers/serviciosController.php?action=eliminar&id=<?php /*echo $servicio['id']; */ ?>"
+                      <!--<a href="<?php /* echo APP_URL; ?>controllers/serviciosController.php?action=eliminar&id=<?php /*echo $servicio['id']; */ ?>"
                         class="btn btn-sm btn-outline-danger" title="Eliminar" data-bs-toggle="tooltip">
                         <i class="fas fa-trash-alt"></i>
-                      </a>
+                      </a>-->
                     </td>
                   </tr>
                 <?php endforeach; ?>
               <?php else:?>
                 <tr>
                   <td colspan="6" class="text-center text-muted py-4">
-                    <i class="fas fa-info-circle me-2"></i>No hay Guias Registradas.
+                    <i class="fas fa-info-circle me-2"></i>No hay ordenes Registradas.
                   </td>
                 </tr>
               <?php endif; ?>
@@ -96,7 +100,7 @@ require_once __DIR__ . "/../../views/inc/sidebar.php";
       <!-- Pie de tabla -->
       <div class="card-footer bg-white text-end">
         <small class="text-muted">
-          Total: <strong><?php /*echo count($guia); */?></strong> Guias registradas
+          Total: <strong><?php echo count($otrabajo); ?></strong> Guias registradas
         </small>
       </div>
     </div>

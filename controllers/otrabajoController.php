@@ -135,6 +135,11 @@ class otrabajoController
         // ✓ TODO OK
         header("Location: ../index.php?views=Otrabajo/index&msg=success");
     }
+    public function listar()
+    {
+        $model = new otrabajo();
+        return $model->obtenerotrabajo();
+    }
 
     // ==========================
     // 📌 FUNCIÓN AUXILIAR LIMPIA
